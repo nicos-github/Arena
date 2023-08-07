@@ -1,0 +1,12 @@
+ColorRect
+Panel
+MeshInstance3D
+CollisionShape3D
+StaticBody3D
+Control
+CSGBox3D
+Area3D
+CSGCylinder3D
+Node3D
+Camera3D
+CharacterBody3D

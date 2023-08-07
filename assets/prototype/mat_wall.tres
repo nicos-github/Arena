@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://c6d7nr6mc3rod"]
+
+[ext_resource type="Texture2D" uid="uid://tkrb5r5qlwhm" path="res://assets/prototype/debug_tile.png" id="1_qkndu"]
+[ext_resource type="Texture2D" uid="uid://cx70qb2ml28lu" path="res://assets/prototype/debug_tile_normal.png" id="2_fktui"]
+
+[resource]
+albedo_texture = ExtResource("1_qkndu")
+normal_enabled = true
+normal_texture = ExtResource("2_fktui")
+uv1_triplanar = true
+uv1_world_triplanar = true

@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://xww0hu3wpysq"]
+
+[ext_resource type="Texture2D" uid="uid://d4jnc635yrbew" path="res://assets/prototype/debug_floor.png" id="1_lfs2i"]
+[ext_resource type="Texture2D" uid="uid://dupdttwu88v34" path="res://assets/prototype/debug_floor_normal.png" id="2_ygd80"]
+
+[resource]
+albedo_texture = ExtResource("1_lfs2i")
+normal_enabled = true
+normal_texture = ExtResource("2_ygd80")
+uv1_triplanar = true
+uv1_world_triplanar = true
