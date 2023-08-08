@@ -1,0 +1,11 @@
+Model Information:
+* title:	revolver animated
+* source:	https://sketchfab.com/3d-models/revolver-animated-a34b6d0ddc774744bc3567d6afc0878f
+* author:	DJMaesen (https://sketchfab.com/bumstrum)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "revolver animated" (https://sketchfab.com/3d-models/revolver-animated-a34b6d0ddc774744bc3567d6afc0878f) by DJMaesen (https://sketchfab.com/bumstrum) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

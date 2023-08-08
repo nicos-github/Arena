@@ -1,0 +1,460 @@
+[gd_scene load_steps=31 format=3 uid="uid://qa287kfrivkv"]
+
+[ext_resource type="Script" path="res://maps/Character.gd" id="1_fll0p"]
+[ext_resource type="Material" uid="uid://xww0hu3wpysq" path="res://assets/prototype/mat_floor.tres" id="1_n2ne3"]
+[ext_resource type="Shader" path="res://maps/underwater_shader.gdshader" id="2_h8k6f"]
+[ext_resource type="Shader" path="res://maps/water_shader.gdshader" id="3_qnmpi"]
+[ext_resource type="Material" uid="uid://c6d7nr6mc3rod" path="res://assets/prototype/mat_wall.tres" id="4_6rohy"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_jdvpw"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_bj7vi"]
+sky_material = SubResource("ProceduralSkyMaterial_jdvpw")
+
+[sub_resource type="Environment" id="Environment_f02ey"]
+background_mode = 2
+sky = SubResource("Sky_bj7vi")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6w4y4"]
+radius = 0.35
+height = 1.8
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_3wxri"]
+metadata/_preview_in_3d_space_ = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_pylge"]
+noise = SubResource("FastNoiseLite_3wxri")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wu42v"]
+shader = ExtResource("2_h8k6f")
+shader_parameter/tint = Color(0.411765, 0.85098, 1, 1)
+shader_parameter/wave_speed = 10.0
+shader_parameter/wave_freq = 10.0
+shader_parameter/wave_width = 0.2
+shader_parameter/vignette_intensity = 0.3
+shader_parameter/vignette_opacity = 1.0
+shader_parameter/vignette_rgb = Color(0.0823529, 0.0823529, 0.301961, 1)
+shader_parameter/freq_noise = SubResource("NoiseTexture2D_pylge")
+
+[sub_resource type="LabelSettings" id="LabelSettings_p6thi"]
+font_size = 24
+outline_size = 6
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_bkkc5"]
+size = Vector2(100, 100)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_lwlor"]
+data = PackedVector3Array(50, 0, 50, -50, 0, 50, 50, 0, -50, -50, 0, 50, -50, 0, -50, 50, 0, -50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e0clm"]
+size = Vector3(1.23611, 11.2961, 0.234768)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_evvuh"]
+size = Vector3(6, 10.9956, 4)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_hcd05"]
+subdivide_width = 16
+subdivide_depth = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e2ipf"]
+transparency = 1
+cull_mode = 1
+albedo_color = Color(0, 0.533333, 1, 0.65098)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_6702t"]
+seed = 5
+frequency = 0.0565
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_54dj2"]
+noise = SubResource("FastNoiseLite_6702t")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_3ciss"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uqao5"]
+seamless = true
+as_normal_map = true
+noise = SubResource("FastNoiseLite_3ciss")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_eq0gw"]
+noise_type = 3
+seed = 4
+frequency = 0.0488
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_g58sn"]
+seamless = true
+as_normal_map = true
+noise = SubResource("FastNoiseLite_eq0gw")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_grkns"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_m2ex8"]
+noise = SubResource("FastNoiseLite_grkns")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2o2u7"]
+render_priority = 0
+next_pass = SubResource("StandardMaterial3D_e2ipf")
+shader = ExtResource("3_qnmpi")
+shader_parameter/depth_fade_distance = 2.0
+shader_parameter/absorbance = 1.0
+shader_parameter/shallow_color = Color(0.282353, 0.521569, 0.866667, 1)
+shader_parameter/deep_color = Color(0.176471, 0.282353, 0.368627, 1)
+shader_parameter/foam_amount = 0.361
+shader_parameter/foam_color = Color(0.713726, 0.772549, 1, 1)
+shader_parameter/roughness = 0.1
+shader_parameter/wave_scale = 1.0
+shader_parameter/height_scale = 0.03
+shader_parameter/wave_dir1 = Vector2(1, 0)
+shader_parameter/wave_dir2 = Vector2(0, 1)
+shader_parameter/wave_speed = 0.015
+shader_parameter/foam_noise = SubResource("NoiseTexture2D_54dj2")
+shader_parameter/wave_texture = SubResource("NoiseTexture2D_m2ex8")
+shader_parameter/normal1 = SubResource("NoiseTexture2D_uqao5")
+shader_parameter/normal2 = SubResource("NoiseTexture2D_g58sn")
+
+[sub_resource type="BoxMesh" id="BoxMesh_aad1g"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qa5oq"]
+
+[node name="World" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_f02ey")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.553566, -0.721231, 0.416403, 2.78059e-08, 0.5, 0.866025, -0.832805, -0.479402, 0.276783, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.577487, 0.2113, -0.788582, 0, 0.965926, 0.258819, 0.8164, -0.149465, 0.55781, 0, 4, 5)
+current = true
+
+[node name="Character" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+collision_layer = 129
+slide_on_ceiling = false
+script = ExtResource("1_fll0p")
+
+[node name="Head" type="Node3D" parent="Character"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Character/Head"]
+current = true
+fov = 90.0
+
+[node name="Wallrunning" type="Node3D" parent="Character/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
+
+[node name="WallLeftRay" type="RayCast3D" parent="Character/Head/Wallrunning"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+enabled = false
+target_position = Vector3(-0.8, 0, 0)
+
+[node name="WallRightRay" type="RayCast3D" parent="Character/Head/Wallrunning"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+enabled = false
+target_position = Vector3(0.8, 0, 0)
+
+[node name="FloorRay" type="RayCast3D" parent="Character/Head/Wallrunning"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+target_position = Vector3(0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Character"]
+shape = SubResource("CapsuleShape3D_6w4y4")
+
+[node name="CrouchRay" type="RayCast3D" parent="Character"]
+target_position = Vector3(0, 0.9, 0)
+
+[node name="UserInterface" type="Control" parent="Character"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Effect_Underwater" type="ColorRect" parent="Character/UserInterface"]
+visible = false
+material = SubResource("ShaderMaterial_wu42v")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Information" type="VBoxContainer" parent="Character/UserInterface"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="FPSLabel" type="Label" parent="Character/UserInterface/Information"]
+layout_mode = 2
+text = "FPS"
+label_settings = SubResource("LabelSettings_p6thi")
+
+[node name="SpeedLabel" type="Label" parent="Character/UserInterface/Information"]
+layout_mode = 2
+text = "Speed"
+label_settings = SubResource("LabelSettings_p6thi")
+
+[node name="VSpeedLabel" type="Label" parent="Character/UserInterface/Information"]
+layout_mode = 2
+text = "v Speed:"
+label_settings = SubResource("LabelSettings_p6thi")
+
+[node name="DoubleJumped" type="Label" parent="Character/UserInterface/Information"]
+layout_mode = 2
+text = "DoubleJumped:"
+label_settings = SubResource("LabelSettings_p6thi")
+
+[node name="WishJump" type="Label" parent="Character/UserInterface/Information"]
+layout_mode = 2
+text = "WishJump:"
+label_settings = SubResource("LabelSettings_p6thi")
+
+[node name="Geometry" type="Node3D" parent="."]
+
+[node name="Floor" type="MeshInstance3D" parent="Geometry"]
+mesh = SubResource("PlaneMesh_bkkc5")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("1_n2ne3")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Floor"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Floor/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_lwlor")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 0.5, -11.1)
+material_overlay = ExtResource("4_6rohy")
+use_collision = true
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.977889, 0, 0.209124, 0, 1, 0, -0.209124, 0, 0.977889, 6.07502, 10.7337, -9.91293)
+material_overlay = ExtResource("4_6rohy")
+use_collision = true
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0.5, -3.1)
+material_overlay = ExtResource("4_6rohy")
+use_collision = true
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 1, -7.4)
+material_overlay = ExtResource("4_6rohy")
+use_collision = true
+radius = 1.20582
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1.8, 0, 0, 0, 1, -4, 8.5, -13.8945)
+material_overlay = ExtResource("4_6rohy")
+size = Vector3(1, 11.7879, 0.197114)
+
+[node name="LadderArea" type="Area3D" parent="Geometry/CSGBox3D5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.327299)
+collision_layer = 65
+collision_mask = 65
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/CSGBox3D5/LadderArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0359211, -0.263937, -0.0816541)
+shape = SubResource("BoxShape3D_e0clm")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 5.5, -8)
+material_overlay = ExtResource("4_6rohy")
+use_collision = true
+size = Vector3(8, 12, 6)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Geometry/CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+operation = 2
+size = Vector3(6, 10, 4)
+
+[node name="WaterArea" type="Area3D" parent="Geometry/CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+collision_layer = 129
+collision_mask = 129
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/CSGBox3D2/WaterArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.385311, 0)
+shape = SubResource("BoxShape3D_evvuh")
+
+[node name="WaterPlane" type="MeshInstance3D" parent="Geometry/CSGBox3D2/WaterArea"]
+transform = Transform3D(3.049, 0, 0, 0, 5.465, 0, 0, 0, 2.067, 0, 4.81921, 0)
+mesh = SubResource("PlaneMesh_hcd05")
+surface_material_override/0 = SubResource("ShaderMaterial_2o2u7")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Geometry/CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.10552)
+size = Vector3(1, 11.7879, 0.197114)
+
+[node name="LadderArea" type="Area3D" parent="Geometry/CSGBox3D2/CSGBox3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.327299)
+collision_layer = 65
+collision_mask = 65
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/CSGBox3D2/CSGBox3D/LadderArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0359211, -0.263937, -0.0816541)
+shape = SubResource("BoxShape3D_e0clm")
+
+[node name="Wall" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -2.08142, 2, 9.23205)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall2" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -12.4737, 2, 15.2321)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall2"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall2/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall3" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -9.77757, 2, 7.90192)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall3"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall3/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall4" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -20.1699, 2, 13.9019)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall4"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall4/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall5" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -26.3301, 2, 23.2321)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall5"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall5/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall6" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -36.7224, 2, 29.2321)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall6"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall6/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall7" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -33.0263, 2, 23.634)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall7"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall7/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall8" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(5.36936, 0, 0.15, 0, 2.8, 0, -3.1, 0, 0.259808, -43.4186, 2, 29.634)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall8"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall8/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall9" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(22.8042, 0, 0.15, 0, 6.776, 0, -13.166, 0, 0.259808, -10.4186, 2.6776, 27.634)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall9"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall9/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="Wall10" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(22.8042, 0, 0.15, 0, 6.776, 0, -13.166, 0, 0.259808, -8.16859, 2.6776, 31.5311)
+material_overlay = ExtResource("4_6rohy")
+mesh = SubResource("BoxMesh_aad1g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Geometry/Wall10"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/Wall10/StaticBody3D"]
+shape = SubResource("BoxShape3D_qa5oq")
+
+[node name="wallRunGlobe" type="CSGCylinder3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.791, 9, -17.053)
+material_overlay = ExtResource("4_6rohy")
+use_collision = true
+radius = 20.0
+height = 20.0
+sides = 32
+
+[node name="wallRunGlobe2" type="CSGCylinder3D" parent="Geometry/wallRunGlobe"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 5)
+operation = 2
+radius = 15.0
+height = 20.0
+sides = 32
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 2, 0)
+material_override = ExtResource("4_6rohy")
+use_collision = true
+size = Vector3(6, 4, 10)
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="Geometry/CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -3)
+material_override = ExtResource("4_6rohy")
+operation = 2
+size = Vector3(6, 2, 2)
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="Geometry/CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 3.5)
+material_override = ExtResource("4_6rohy")
+operation = 2
+size = Vector3(6, 1, 2)
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="Geometry/CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.25, 0.5)
+material_override = ExtResource("4_6rohy")
+operation = 2
+size = Vector3(6, 1.5, 2)
+
+[connection signal="body_entered" from="Geometry/CSGBox3D5/LadderArea" to="Character" method="_enter_ladder"]
+[connection signal="body_exited" from="Geometry/CSGBox3D5/LadderArea" to="Character" method="_exit_ladder"]
+[connection signal="body_entered" from="Geometry/CSGBox3D2/WaterArea" to="Character" method="_enter_water"]
+[connection signal="body_exited" from="Geometry/CSGBox3D2/WaterArea" to="Character" method="_exit_water"]
+[connection signal="body_entered" from="Geometry/CSGBox3D2/CSGBox3D/LadderArea" to="Character" method="_enter_ladder"]
+[connection signal="body_exited" from="Geometry/CSGBox3D2/CSGBox3D/LadderArea" to="Character" method="_exit_ladder"]
