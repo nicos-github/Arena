@@ -2,5 +2,5 @@ res://maps/the_world.tscn
 res://assets/prototype/mat_floor.tres
 res://maps/underwater_shader.gdshader
 res://maps/water_shader.gdshader
-res://maps/Character.gd
 res://assets/prototype/mat_wall.tres
+res://maps/Character.gd

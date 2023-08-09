@@ -8,9 +8,9 @@ const HEAD_LEVEL = 0.5
 const SENSITIVITY = 1
 
 var speed = 0
-const WALK_SPEED = 6.0
+const WALK_SPEED = 4.5
 var is_sprinting = false
-const SPRINT_SPEED = 9.0
+const SPRINT_SPEED = 7.0
 
 # Crouching
 @onready var CrouchRay = $CrouchRay
@@ -19,13 +19,10 @@ const CROUCH_SPEED = 3.0
 const CROUCH_HEIGHT = 0.5 # multiplier for base height of player which is around 1.8m
 const CROUCH_HEAD_LEVEL_DECREMENT = 0.5 # how much the head level shrinks
 
-# Sliding
-var is_sliding = false
-
 const GROUND_ACCELERATION = 60.0
 const GROUND_DRAG = 10.0
-const AIR_ACCELERATION = 35.0
-const AIR_DRAG = 0.5
+const AIR_ACCELERATION = 25.0
+const AIR_DRAG = 1.0
 
 const JUMP_VELOCITY = 6.5
 
@@ -34,6 +31,7 @@ const RESISTANT_FALL_VELOCITY = 12 # over this velocity fall damage is applied
 const GRAVITY = 20
 
 # WATER AND SWIMMING
+var is_swimming = false
 const SWIM_SPEED = 4.0
 const SWIM_ACCELERATION = 2.5
 const SWIM_VERTICAL_VELOCITY = 4.0
@@ -65,15 +63,15 @@ const VIEW_SWAY_STRENGTH = 1.0
 @onready var WallLeftRay = $Head/Wallrunning/WallLeftRay
 @onready var WallRightRay = $Head/Wallrunning/WallRightRay
 @onready var FloorRay = $Head/Wallrunning/FloorRay
-const WALL_RUN_SPEED = 8.0
+const WALL_RUN_SPEED = 10.0
 const WALL_JUMP_EXIT_SPEED = 8.0
 const WALL_JUMP_UP_FORCE = 5.0
 const WALL_JUMP_SIDE_FORCE = 7.0
 const WALL_RUN_GRAVITY = 1.2
 const WALL_RUN_FOV_CHANGE = -5
 const WALL_RUN_FOV_CHANGE_SPEED = 5
-const WALL_RUN_VIEW_ROLL = 4
-const WALL_RUN_VIEW_ROLL_SPEED = 8.0
+const WALL_RUN_VIEW_ROLL = 5
+const WALL_RUN_VIEW_ROLL_SPEED = 5.0
 const WALL_EXIT_TIMER = 0.01
 var is_wallrunning = false
 var is_exiting_wall = false
@@ -84,9 +82,33 @@ var wish_jump_time = 0.0
 const WISH_JUMP_TIME = 0.2
 var double_jumped = false
 
-# sliding
+# Sliding
+var is_sliding = false
 var slide_time = 0.0
-const SLIDING_TIME = 0.5
+const SLIDING_TIME = 0.75
+const SLIDING_SPEED = 7
+const SLIDING_ACCEL = 8
+const SLIDING_DRAG = 3
+const SLIDE_FOV_CHANGE = 10
+
+# Grappling
+@onready var GrapplingLine = $Head/GrapplingLine
+var is_grappling = false
+var started_grappling = false
+var grapple_point := Vector3();
+var grapple_distance = 0.0
+var grappling_time = 0.0;
+var grapple_cooldown := 0.0;
+var grapple_overshoot_y = 2.0
+const GRAPPLE_MAX_DISTANCE := 30.0;
+const GRAPPLE_START_TIME := 0.5; 
+const GRAPPLE_COOLDOWN := 0.0;
+const GRAPPLE_TIME = 5.0
+const GRAPPLE_ACCEL = 25
+const GRAPPLE_SPEED = 5
+const GRAPPLE_STRENGTH = 50
+const GRAPPLE_MAX_TIME = 5.0;
+const GRAPPLE_PULL_UP = 0.75
 
 # UI
 @onready var FPSLabel = $UserInterface/Information/FPSLabel
@@ -95,12 +117,17 @@ const SLIDING_TIME = 0.5
 @onready var DoubleJumped = $UserInterface/Information/DoubleJumped
 @onready var WishJump = $UserInterface/Information/WishJump
 
+# Audio
+@onready var SfxJump = $Audio/Jump/SfxJump
+@onready var SfxDoubleJump = $Audio/Jump/SfxDoubleJump
+
 enum MOVEMENT {
 	NORMAL,
 	LADDER,
 	SLIDING,
 	WALLRUNNING,
-	SWIMMING
+	SWIMMING,
+	GRAPPLING
 }
 
 var movement : MOVEMENT = MOVEMENT.NORMAL; 
@@ -129,6 +156,20 @@ func _physics_process(delta):
 			_movement_wallrunning(delta)
 		MOVEMENT.SLIDING:
 			_movement_sliding(delta)
+		MOVEMENT.GRAPPLING:
+			_movement_grappling(delta)
+			
+	# Grappling Line Fix
+	if !((movement == MOVEMENT.NORMAL) or (movement == MOVEMENT.GRAPPLING)):
+		GrapplingLine.visible = false
+	
+	# Grapple cooldown
+	if grapple_cooldown > 0.0:
+		grapple_cooldown -= delta
+	
+	# swimming
+	if is_swimming:
+		movement = MOVEMENT.SWIMMING
 	
 	# UI
 	FPSLabel.text = "FPS: " + str(Engine.get_frames_per_second()).pad_zeros(3).pad_decimals(0)
@@ -152,29 +193,12 @@ func _movement_normal(delta):
 	else:
 		double_jumped = false
 	
-	# Handle Jump and wish jump
-	if Input.is_action_just_pressed("move_jump"):
-		if FloorRay.is_colliding():
-			wish_jump_time = WISH_JUMP_TIME
-		elif double_jumped == false:
-			velocity.y = JUMP_VELOCITY
-			double_jumped = true
-		else:
-			wish_jump_time = WISH_JUMP_TIME
-	
-	if wish_jump_time > 0.0:
-		wish_jump_time -= delta
-	else:
-		wish_jump_time = 0.0
-	
-	if is_on_floor() and wish_jump_time > 0.0:
-			velocity.y = JUMP_VELOCITY
 
 		
 	# Handle sprint
 	speed = WALK_SPEED
-	if is_on_floor() and Vector2(velocity.x, velocity.z).length() > 1 and !is_crouching:
-		if Input.is_action_pressed("move_sprint"): # only tap sprint key to start, not hold it
+	if Vector2(velocity.x, velocity.z).length() > 1 and !is_crouching:
+		if Input.is_action_pressed("move_sprint") and is_on_floor(): # only tap sprint key to start, not hold it
 			is_sprinting = true
 	else:
 		is_sprinting = false
@@ -229,6 +253,11 @@ func _movement_normal(delta):
 	if !is_on_floor():
 		accel = AIR_ACCELERATION
 		drag = AIR_DRAG
+		
+		# disable air drag when crouching
+		if is_crouching:
+			accel = 0.1
+			drag = 0.1
 	
 	if direction:
 		acceleration.x = direction.x * accel
@@ -250,15 +279,36 @@ func _movement_normal(delta):
 		velocity.x = lerp(velocity.x, 0.0, drag * delta)
 	if acceleration.z == 0.0:
 		velocity.z = lerp(velocity.z, 0.0, drag * delta)
-		
+	
+	
+	# Handle Jump and wish jump
+	if Input.is_action_just_pressed("move_jump"):
+		if FloorRay.is_colliding():
+			wish_jump_time = WISH_JUMP_TIME
+		elif double_jumped == false:
+			double_jumped = true
+			# change direction of movement with double jump
+			velocity = direction * Vector2(velocity.x,velocity.z).length()
+			velocity.y = JUMP_VELOCITY
+			SfxDoubleJump.play()
+		else:
+			wish_jump_time = WISH_JUMP_TIME
+	
+	if wish_jump_time > 0.0:
+		wish_jump_time -= delta
+	else:
+		wish_jump_time = 0.0
+	
+	if is_on_floor() and wish_jump_time > 0.0:
+			velocity.y = JUMP_VELOCITY
+			SfxJump.play()
+	
 	# limit speed
 	#var flat_vel = Vector3(velocity.x, 0, velocity.z)
 	#if flat_vel.length() > speed:
 	#	var limited_vel = flat_vel.normalized() * speed
 	#	velocity = Vector3(limited_vel.x, velocity.y, limited_vel.z)
 	
-
-	print(velocity.y)
 	move_and_slide()
 	
 	# HeadBob
@@ -283,6 +333,26 @@ func _movement_normal(delta):
 		# check if strafing into the wall
 		if (Input.is_action_pressed("move_left") and WallLeftRay.is_colliding()) or (Input.is_action_pressed("move_right") and WallRightRay.is_colliding()):
 			movement = MOVEMENT.WALLRUNNING
+			
+	# Switch to grappling hook
+	if Input.is_action_just_pressed("action_grapple"):
+		_check_grappling(delta)
+	
+	# grappling line
+	if !started_grappling:
+		
+		
+		GrapplingLine.visible = (GrapplingLine.scale.z > 1.0)
+		#GrapplingLine.global_transform.origin = (((global_transform.origin  - Vector3(0, 2, 0)) + grapple_point) / 2.0)
+		if is_grappling:
+			GrapplingLine.look_at(grapple_point)
+			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, global_transform.origin.distance_to(grapple_point) * 50, delta * (1/GRAPPLE_START_TIME))
+			print(global_transform.origin.distance_to(grapple_point))		
+		else:
+			GrapplingLine.look_at(grapple_point)
+			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, 0.0, delta * (1/GRAPPLE_START_TIME) * 2.0)
+			
+	
 	
 func _movement_swimming(delta):
 
@@ -368,19 +438,20 @@ func _movement_wallrunning(delta):
 		if (Head.transform.basis.z - wall_forward).length() < (Head.transform.basis.z + wall_forward).length():
 			wall_forward = -wall_forward
 		
-		# no gravity if on wall
+		# wallrun gravity if on wall
 		if is_on_wall():
 			velocity.y = -WALL_RUN_GRAVITY
 		
 		velocity += wall_forward * WALL_RUN_SPEED * delta
-		velocity -= wall_normal * 5
+		velocity -= wall_normal * 20 * delta
 		
 		# jumping off
 		if Input.is_action_just_pressed("move_jump"):
 			velocity = Vector3.UP * WALL_JUMP_UP_FORCE + wall_normal * WALL_JUMP_SIDE_FORCE + wall_forward * WALL_JUMP_EXIT_SPEED
+			SfxJump.play()
 			is_exiting_wall = true
 		
-		velocity = velocity.clamp(-Vector3(WALL_JUMP_EXIT_SPEED, WALL_JUMP_UP_FORCE, WALL_JUMP_EXIT_SPEED), Vector3(WALL_JUMP_EXIT_SPEED, WALL_JUMP_UP_FORCE, WALL_JUMP_EXIT_SPEED))
+		velocity = velocity.clamp(-Vector3(WALL_RUN_SPEED, WALL_JUMP_UP_FORCE, WALL_RUN_SPEED), Vector3(WALL_RUN_SPEED, WALL_JUMP_UP_FORCE, WALL_RUN_SPEED))
 		
 		
 		# Wallrun FOV
@@ -432,13 +503,7 @@ func _movement_sliding(delta):
 
 	var slide_slope_speed = 0.0
 	var slide_slope_accel = 0.0
-	
-	const SLIDING_SPEED = 9
-	const SLIDING_ACCEL = 8
-	const SLIDING_DRAG = 3
-	const SLIDE_FOV_CHANGE = 10
-	
-	
+
 	
 	# Slopes
 	if is_on_floor():
@@ -446,8 +511,8 @@ func _movement_sliding(delta):
 		velocity.y = angle * -30
 		if angle != 0:
 			
-			slide_slope_speed = angle * SLIDING_SPEED * 10
-			slide_slope_accel = angle * SLIDING_ACCEL * 5
+			slide_slope_speed = angle * SLIDING_SPEED * 5
+			slide_slope_accel = angle * SLIDING_ACCEL * 3
 		else:
 			# if sliding on plain ground decrease sliding time
 			slide_time -= delta
@@ -476,9 +541,17 @@ func _movement_sliding(delta):
 		velocity.x = lerp(velocity.x, 0.0, SLIDING_DRAG * delta)
 		velocity.z = lerp(velocity.z, 0.0, SLIDING_DRAG * delta)
 	
-	if Input.is_action_just_pressed("move_jump") and is_on_floor():
+	if Input.is_action_just_pressed("move_jump"):
+		wish_jump_time = WISH_JUMP_TIME
+	
+	if wish_jump_time > 0.0:
+		wish_jump_time -= delta
+	
+	if wish_jump_time > 0.0 and is_on_floor():
 		#velocity.y = Vector3(velocity.x, 0, velocity.z).length()
 		velocity.y = JUMP_VELOCITY
+		SfxJump.play()
+		velocity = velocity.rotated(Vector3.UP, Input.get_axis("move_right","move_left") * 0.5)
 	
 	if !is_on_floor():
 		velocity.y -= GRAVITY * delta
@@ -491,12 +564,131 @@ func _movement_sliding(delta):
 	Camera.fov = lerp(Camera.fov, target_fov, delta * FOV_CHANGE_SPEED)
 	
 	# View Sway
-	var view_sway = deg_to_rad(-3)
+	var view_sway = deg_to_rad(-1)
 	Head.rotation.z = lerp(Head.rotation.z, view_sway, delta * VIEW_SWAY_SPEED)
-	Camera.rotation.x = clamp(Camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+
+func _check_grappling(delta):
 	
+	# check if cooldown isnt active
+	if grapple_cooldown > 0.0:
+		print("cant grapple now")
+		movement = MOVEMENT.NORMAL
+		return
+	
+	if is_grappling == false:
+		
+		is_grappling = true
+		
+		# raycast 
+		var space_state = get_world_3d().direct_space_state
+		# use global coordinates, not local to node
+		var origin = global_transform.origin
+		var end = global_transform.origin - Camera.global_transform.basis.z * GRAPPLE_MAX_DISTANCE
+		var query = PhysicsRayQueryParameters3D.create(origin, end)
+		var result := space_state.intersect_ray(query)
+		
+		print("grapple shot")
+		
+		if result.has("collider"):
+			
+			grapple_point = result["position"]
+			get_tree().create_timer(GRAPPLE_START_TIME, true, true, false).connect("timeout", _start_grappling.bind(global_transform.origin.distance_to(end)))
+			
+			
+		else:
+			
+			# end grappling as no point was found
+			print("grapple miss")
+			grapple_point = end
+			
+			#await get_tree().create_timer(GRAPPLE_START_TIME, true, true, false).timeout
+			
+			get_tree().create_timer(GRAPPLE_START_TIME, true, true, false).connect("timeout", _stop_grappling)
+
+
+func _start_grappling(distance):
+	grapple_distance = distance
+	grappling_time = GRAPPLE_TIME;
+	started_grappling = true
+	movement = MOVEMENT.GRAPPLING
+	
+	
+	# go directly to target when crouching
+	if Input.is_action_pressed("move_crouch"):
+		var origin = global_transform.origin
+		var lowest_point = Vector3(origin.x, origin.y - 1, origin.z)
+		var grapple_point_relative_y = grapple_point.y - lowest_point.y
+		var highest_point = grapple_point_relative_y + grapple_overshoot_y;
+		
+		if (grapple_point_relative_y < 0):
+			highest_point = grapple_overshoot_y
+
+		jump_to_position(grapple_point, highest_point)
+		
+	
+	# max grapling timer 
+	get_tree().create_timer(GRAPPLE_MAX_TIME, true, true, false).connect("timeout", _stop_grappling)
 	
 
+func _stop_grappling():
+	is_grappling = false
+	started_grappling = false
+	grapple_cooldown = GRAPPLE_COOLDOWN
+	movement = MOVEMENT.NORMAL
+
+func _movement_grappling(delta):
+
+	
+	if started_grappling:
+
+		GrapplingLine.look_at(grapple_point)
+		GrapplingLine.scale.z = global_transform.origin.distance_to(grapple_point) * 50
+		print(global_transform.origin.distance_to(grapple_point))		
+		
+		
+		if !is_on_floor():
+			velocity.y -= GRAVITY * delta
+
+		if grappling_time > 0:
+			grappling_time -= delta
+		
+		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+		var direction = (Head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+
+		if global_transform.origin.distance_to(grapple_point) > 1:
+			var y_accel = 0
+			if Input.is_action_pressed("move_jump"):
+				y_accel = GRAPPLE_PULL_UP
+			velocity = velocity.lerp((global_transform.origin.direction_to(grapple_point+Vector3(0, grapple_overshoot_y, 0)) * (global_transform.origin.distance_to(grapple_point) / grapple_distance) * GRAPPLE_STRENGTH) + (direction+Vector3(0, y_accel, 0)) * (GRAPPLE_ACCEL * (grappling_time/GRAPPLE_TIME)), GRAPPLE_SPEED * ((GRAPPLE_TIME-grappling_time)/GRAPPLE_TIME) * delta )
+		else:
+			_stop_grappling()
+
+		move_and_slide()
+
+		if Input.is_action_just_pressed("action_grapple"):
+			_stop_grappling()
+			
+	else:
+		_stop_grappling()
+
+func calculate_grapple_velocity(origin: Vector3, end: Vector3, height: float) -> Vector3:
+	var displacementY: float = end.y - origin.y;
+	var displacementXZ: Vector3 = Vector3(end.x - origin.x, 0.0, end.z - origin.z)
+	
+	print("DisplacenentXZ:" + str(displacementXZ))
+	print("DisplacenentY:" + str(displacementY))
+	
+	var velocityY := Vector3.UP * sqrt(2.0 * GRAVITY * height)
+	var velocityXZ = displacementXZ / (sqrt(2.0 * height / GRAVITY) + sqrt(-2.0 * (displacementY - height) / GRAVITY))
+	
+	var vel = velocityXZ + velocityY
+	print(vel)
+	return vel
+
+func jump_to_position(target: Vector3, height: float) -> void:
+	velocity = calculate_grapple_velocity(global_transform.origin, target, height)
+	
+	
 func _head_bob(time) -> Vector3:
 	var pos := Vector3.ZERO
 	pos.y = sin(time * BOB_FREQUENCY) * BOB_AMPLITUDE
@@ -506,19 +698,24 @@ func _head_bob(time) -> Vector3:
 # Water
 func _enter_water(node):
 	if node == self: # only react to player entering
+		_stop_grappling()
 		movement = MOVEMENT.SWIMMING
 		water_entry_point = global_transform.origin
+		is_swimming = true
 
 func _exit_water(node):
 	if node == self: # only react to player entering
 		movement = MOVEMENT.NORMAL
 		velocity.y = WATER_EXIT_VELOCITY
+		is_swimming = false
 
 # Ladders
 
 func _enter_ladder(node):
+	
 	if node != self: # only react to player entering
 		return
+	_stop_grappling()
 	movement = MOVEMENT.LADDER
 	print("LADDER ENTERED")
 	
