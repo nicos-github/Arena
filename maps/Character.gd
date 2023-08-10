@@ -93,6 +93,7 @@ const SLIDE_FOV_CHANGE = 10
 
 # Grappling
 @onready var GrapplingLine = $Head/GrapplingLine
+@onready var GrapplingHookHead = $Head/GrapplingHookHead
 var is_grappling = false
 var started_grappling = false
 var grapple_point := Vector3();
@@ -100,15 +101,21 @@ var grapple_distance = 0.0
 var grappling_time = 0.0;
 var grapple_cooldown := 0.0;
 var grapple_overshoot_y = 2.0
+var grapple_stop_timer : SceneTreeTimer
 const GRAPPLE_MAX_DISTANCE := 30.0;
 const GRAPPLE_START_TIME := 0.5; 
-const GRAPPLE_COOLDOWN := 0.0;
+const GRAPPLE_COOLDOWN := 2.0;
 const GRAPPLE_TIME = 5.0
 const GRAPPLE_ACCEL = 25
 const GRAPPLE_SPEED = 5
 const GRAPPLE_STRENGTH = 50
 const GRAPPLE_MAX_TIME = 5.0;
 const GRAPPLE_PULL_UP = 0.75
+# Grapple Audio
+@onready var SfxGrapplingThrow = $Audio/Grappling/SfxGrapplingThrow
+@onready var SfxGrapplingAttach = $Audio/Grappling/SfxGrapplingAttach
+@onready var SfxGrapplingHooking = $Audio/Grappling/SfxGrapplingHooking
+@onready var SfxGrapplingRetrieve = $Audio/Grappling/SfxGrapplingRetrieve
 
 # UI
 @onready var FPSLabel = $UserInterface/Information/FPSLabel
@@ -120,6 +127,12 @@ const GRAPPLE_PULL_UP = 0.75
 # Audio
 @onready var SfxJump = $Audio/Jump/SfxJump
 @onready var SfxDoubleJump = $Audio/Jump/SfxDoubleJump
+
+# Ambient Audio
+@onready var SfxWaterSwimming = $Audio/Ambient/SfxWaterSwimming
+
+# AudioBusses
+var AudioWaterBus = AudioServer.get_bus_index("Water")
 
 enum MOVEMENT {
 	NORMAL,
@@ -159,13 +172,9 @@ func _physics_process(delta):
 		MOVEMENT.GRAPPLING:
 			_movement_grappling(delta)
 			
-	# Grappling Line Fix
-	if !((movement == MOVEMENT.NORMAL) or (movement == MOVEMENT.GRAPPLING)):
-		GrapplingLine.visible = false
 	
-	# Grapple cooldown
-	if grapple_cooldown > 0.0:
-		grapple_cooldown -= delta
+		
+	_handle_grappling_line(delta)
 	
 	# swimming
 	if is_swimming:
@@ -338,20 +347,6 @@ func _movement_normal(delta):
 	if Input.is_action_just_pressed("action_grapple"):
 		_check_grappling(delta)
 	
-	# grappling line
-	if !started_grappling:
-		
-		
-		GrapplingLine.visible = (GrapplingLine.scale.z > 1.0)
-		#GrapplingLine.global_transform.origin = (((global_transform.origin  - Vector3(0, 2, 0)) + grapple_point) / 2.0)
-		if is_grappling:
-			GrapplingLine.look_at(grapple_point)
-			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, global_transform.origin.distance_to(grapple_point) * 50, delta * (1/GRAPPLE_START_TIME))
-			print(global_transform.origin.distance_to(grapple_point))		
-		else:
-			GrapplingLine.look_at(grapple_point)
-			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, 0.0, delta * (1/GRAPPLE_START_TIME) * 2.0)
-			
 	
 	
 func _movement_swimming(delta):
@@ -577,6 +572,8 @@ func _check_grappling(delta):
 	
 	if is_grappling == false:
 		
+		GrapplingLine.visible = true
+		
 		is_grappling = true
 		
 		# raycast 
@@ -589,10 +586,16 @@ func _check_grappling(delta):
 		
 		print("grapple shot")
 		
+		# audio
+		SfxGrapplingThrow.play()
+		
 		if result.has("collider"):
 			
 			grapple_point = result["position"]
-			get_tree().create_timer(GRAPPLE_START_TIME, true, true, false).connect("timeout", _start_grappling.bind(global_transform.origin.distance_to(end)))
+			if grapple_stop_timer is SceneTreeTimer:
+				grapple_stop_timer.disconnect("timeout", _stop_grappling)
+			grapple_stop_timer = get_tree().create_timer(GRAPPLE_START_TIME, true, true, false)
+			grapple_stop_timer.connect("timeout", _start_grappling.bind(global_transform.origin.distance_to(end)))
 			
 			
 		else:
@@ -603,15 +606,24 @@ func _check_grappling(delta):
 			
 			#await get_tree().create_timer(GRAPPLE_START_TIME, true, true, false).timeout
 			
-			get_tree().create_timer(GRAPPLE_START_TIME, true, true, false).connect("timeout", _stop_grappling)
-
+			if grapple_stop_timer is SceneTreeTimer:
+				grapple_stop_timer.disconnect("timeout", _stop_grappling)
+			grapple_stop_timer = get_tree().create_timer(GRAPPLE_START_TIME, true, true, false)
+			grapple_stop_timer.connect("timeout", _stop_grappling)
+			
+			
+			
 
 func _start_grappling(distance):
+	GrapplingLine.visible = true
 	grapple_distance = distance
 	grappling_time = GRAPPLE_TIME;
 	started_grappling = true
 	movement = MOVEMENT.GRAPPLING
 	
+	# audio
+	SfxGrapplingAttach.play()
+	SfxGrapplingHooking.play()
 	
 	# go directly to target when crouching
 	if Input.is_action_pressed("move_crouch"):
@@ -626,18 +638,29 @@ func _start_grappling(distance):
 		jump_to_position(grapple_point, highest_point)
 		
 	
-	# max grapling timer 
-	get_tree().create_timer(GRAPPLE_MAX_TIME, true, true, false).connect("timeout", _stop_grappling)
+	### FIXME: grapple stop timer disconnect stop grappling needs to be validated
 	
+	# max grapling timer 
+	if grapple_stop_timer is SceneTreeTimer:
+		grapple_stop_timer.disconnect("timeout", _stop_grappling)
+	grapple_stop_timer = get_tree().create_timer(GRAPPLE_MAX_TIME, true, true, false)
+	grapple_stop_timer.connect("timeout", _stop_grappling)
 
 func _stop_grappling():
+	
+	if is_grappling or started_grappling:
+		grapple_cooldown = GRAPPLE_COOLDOWN
+		print("Grappling cooldown set")
+		SfxGrapplingHooking.stop()
+		SfxGrapplingRetrieve.play()
+	
 	is_grappling = false
 	started_grappling = false
-	grapple_cooldown = GRAPPLE_COOLDOWN
+	
 	movement = MOVEMENT.NORMAL
 
 func _movement_grappling(delta):
-
+	
 	
 	if started_grappling:
 
@@ -671,6 +694,37 @@ func _movement_grappling(delta):
 	else:
 		_stop_grappling()
 
+func _handle_grappling_line(delta):
+	
+	# Grappling Line Fix
+	if !((movement == MOVEMENT.NORMAL) or (movement == MOVEMENT.GRAPPLING)):
+		GrapplingLine.visible = false
+	
+	# Grapple cooldown
+	if grapple_cooldown > 0.0:
+		grapple_cooldown -= delta
+	
+	# grappling line
+	if !started_grappling:
+		GrapplingLine.visible = (GrapplingLine.scale.z > 1.0)
+		GrapplingHookHead.global_transform.origin = GrapplingLine.global_transform.origin + global_transform.origin.direction_to(grapple_point) * (GrapplingLine.scale.z / 45)		
+		if is_grappling:
+			GrapplingLine.look_at(grapple_point)
+			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, global_transform.origin.distance_to(grapple_point) * 50, delta * (1/GRAPPLE_START_TIME))	
+		else:
+			GrapplingLine.look_at(grapple_point)
+			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, 0.0, delta * (1/GRAPPLE_START_TIME) * 2.0)
+	
+	else:
+		GrapplingHookHead.global_transform.origin = grapple_point
+	
+	# grappling head
+	GrapplingHookHead.visible = GrapplingLine.visible
+	if GrapplingHookHead.global_transform.origin.distance_to(grapple_point) > 1.0:
+			GrapplingHookHead.look_at(grapple_point)
+	
+	print(GrapplingHookHead.global_transform.origin.distance_to(global_transform.origin))
+
 func calculate_grapple_velocity(origin: Vector3, end: Vector3, height: float) -> Vector3:
 	var displacementY: float = end.y - origin.y;
 	var displacementXZ: Vector3 = Vector3(end.x - origin.x, 0.0, end.z - origin.z)
@@ -682,7 +736,6 @@ func calculate_grapple_velocity(origin: Vector3, end: Vector3, height: float) ->
 	var velocityXZ = displacementXZ / (sqrt(2.0 * height / GRAVITY) + sqrt(-2.0 * (displacementY - height) / GRAVITY))
 	
 	var vel = velocityXZ + velocityY
-	print(vel)
 	return vel
 
 func jump_to_position(target: Vector3, height: float) -> void:
@@ -702,12 +755,20 @@ func _enter_water(node):
 		movement = MOVEMENT.SWIMMING
 		water_entry_point = global_transform.origin
 		is_swimming = true
+		
+		# water sound
+		AudioServer.set_bus_bypass_effects(AudioWaterBus, false)
+		SfxWaterSwimming.play()
 
 func _exit_water(node):
 	if node == self: # only react to player entering
 		movement = MOVEMENT.NORMAL
 		velocity.y = WATER_EXIT_VELOCITY
 		is_swimming = false
+		
+		# water sound
+		AudioServer.set_bus_bypass_effects(AudioWaterBus, true)
+		SfxWaterSwimming.stop()
 
 # Ladders
 

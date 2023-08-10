@@ -1,0 +1,52 @@
+[gd_resource type="AudioBusLayout" load_steps=7 format=3 uid="uid://480uj175ovs7"]
+
+[sub_resource type="AudioEffectFilter" id="AudioEffectFilter_s5uwj"]
+resource_name = "Filter"
+
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_03tfo"]
+resource_name = "LowPassFilter"
+resonance = 1.0
+
+[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_wxsst"]
+resource_name = "Reverb"
+room_size = 0.36
+damping = 0.29
+dry = 0.56
+wet = 0.17
+
+[sub_resource type="AudioEffectChorus" id="AudioEffectChorus_n0y71"]
+resource_name = "Chorus"
+
+[sub_resource type="AudioEffectCompressor" id="AudioEffectCompressor_v3mso"]
+resource_name = "Compressor"
+ratio = 48.0
+
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_hmao4"]
+resource_name = "LowPassFilter"
+cutoff_hz = 500.0
+
+[resource]
+bus/1/name = &"Water"
+bus/1/solo = false
+bus/1/mute = false
+bus/1/bypass_fx = true
+bus/1/volume_db = -0.725993
+bus/1/send = &"Master"
+bus/1/effect/0/effect = SubResource("AudioEffectFilter_s5uwj")
+bus/1/effect/0/enabled = true
+bus/1/effect/1/effect = SubResource("AudioEffectLowPassFilter_03tfo")
+bus/1/effect/1/enabled = true
+bus/1/effect/2/effect = SubResource("AudioEffectReverb_wxsst")
+bus/1/effect/2/enabled = true
+bus/1/effect/3/effect = SubResource("AudioEffectChorus_n0y71")
+bus/1/effect/3/enabled = true
+bus/1/effect/4/effect = SubResource("AudioEffectCompressor_v3mso")
+bus/1/effect/4/enabled = true
+bus/1/effect/5/effect = SubResource("AudioEffectLowPassFilter_hmao4")
+bus/1/effect/5/enabled = true
+bus/2/name = &"Sounds"
+bus/2/solo = false
+bus/2/mute = false
+bus/2/bypass_fx = false
+bus/2/volume_db = 0.0
+bus/2/send = &"Water"

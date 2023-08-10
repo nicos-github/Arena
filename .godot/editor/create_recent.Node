@@ -1,8 +1,9 @@
-AudioStreamPlayer
 Node
-CollisionShape3D
 MeshInstance3D
 Node3D
+Label
+AudioStreamPlayer
+CollisionShape3D
 SkeletonIK3D
 RigidBody3D
 AnimatableBody3D
@@ -14,7 +15,6 @@ CSGBox3D
 RayCast3D
 Camera3D
 VBoxContainer
-Label
 CSGCylinder3D
 Panel
 Control
