@@ -1,0 +1,77 @@
+[gd_scene load_steps=11 format=3 uid="uid://6k03gpn111he"]
+
+[ext_resource type="Script" path="res://effects/explosions/explosion.gd" id="1_yumj6"]
+[ext_resource type="Texture2D" uid="uid://cjovmsy4fv3kb" path="res://assets/effects/explosions/explosion 3.png" id="2_2q5pj"]
+[ext_resource type="Texture2D" uid="uid://cxjakpi5oygci" path="res://assets/effects/explosions/explosion 1.png" id="3_hdjpk"]
+[ext_resource type="AudioStream" uid="uid://c8udrurp4441h" path="res://sfx/effects/explosion.wav" id="4_uekvu"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_r2hwf"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+gravity = Vector3(0, 0, 0)
+angle_min = -720.0
+angle_max = 720.0
+anim_speed_min = 1.0
+anim_speed_max = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8mi6h"]
+transparency = 2
+alpha_scissor_threshold = 0.269
+alpha_antialiasing_mode = 0
+blend_mode = 1
+albedo_texture = ExtResource("2_2q5pj")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 8
+particles_anim_v_frames = 8
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_43l66"]
+material = SubResource("StandardMaterial3D_8mi6h")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o7unk"]
+transparency = 2
+alpha_scissor_threshold = 0.269
+alpha_antialiasing_mode = 0
+blend_mode = 1
+albedo_texture = ExtResource("3_hdjpk")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 8
+particles_anim_v_frames = 8
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_apbm0"]
+material = SubResource("StandardMaterial3D_o7unk")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_sm1rh"]
+radius = 0.2
+
+[node name="explosion1" type="Node3D"]
+script = ExtResource("1_yumj6")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00241947, 0.25, 0.00132179)
+emitting = false
+amount = 4
+one_shot = true
+explosiveness = 0.9
+randomness = 1.0
+visibility_aabb = AABB(-1.00001, -1.00001, -1.00001, 2.00002, 2.00002, 2.00002)
+process_material = SubResource("ParticleProcessMaterial_r2hwf")
+draw_passes = 2
+draw_pass_1 = SubResource("QuadMesh_43l66")
+draw_pass_2 = SubResource("QuadMesh_apbm0")
+
+[node name="ExplosionSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("4_uekvu")
+bus = &"Sounds"
+
+[node name="DamageArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageArea"]
+shape = SubResource("SphereShape3D_sm1rh")
+
+[connection signal="body_entered" from="DamageArea" to="." method="_on_damage_area_body_entered"]

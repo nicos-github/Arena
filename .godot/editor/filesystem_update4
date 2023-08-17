@@ -4,3 +4,4 @@ res://assets/prototype/mat_floor.tres
 res://maps/underwater_shader.gdshader
 res://maps/water_shader.gdshader
 res://assets/prototype/mat_wall.tres
+res://actors/projectiles/Projectile.tscn

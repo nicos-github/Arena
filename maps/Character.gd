@@ -1,16 +1,17 @@
 extends CharacterBody3D
 
 @onready var Head = $Head
-@onready var Camera = $Head/Camera3D
+@onready var CameraPivot = $Head/CameraPivot
+@onready var Camera = $Head/CameraPivot/Camera3D
 @onready var CollisionShape = $CollisionShape3D
 
-const HEAD_LEVEL = 0.5
+const HEAD_LEVEL = 0.6
 const SENSITIVITY = 1
 
 var speed = 0
-const WALK_SPEED = 4.5
+const WALK_SPEED = 6.5
 var is_sprinting = false
-const SPRINT_SPEED = 7.0
+const SPRINT_SPEED = 9.0
 
 # Crouching
 @onready var CrouchRay = $CrouchRay
@@ -19,7 +20,7 @@ const CROUCH_SPEED = 3.0
 const CROUCH_HEIGHT = 0.5 # multiplier for base height of player which is around 1.8m
 const CROUCH_HEAD_LEVEL_DECREMENT = 0.5 # how much the head level shrinks
 
-const GROUND_ACCELERATION = 60.0
+const GROUND_ACCELERATION = 90.0
 const GROUND_DRAG = 10.0
 const AIR_ACCELERATION = 25.0
 const AIR_DRAG = 1.0
@@ -28,7 +29,7 @@ const JUMP_VELOCITY = 6.5
 
 const RESISTANT_FALL_VELOCITY = 12 # over this velocity fall damage is applied
 
-const GRAVITY = 20
+const GRAVITY = 19.62
 
 # WATER AND SWIMMING
 var is_swimming = false
@@ -38,21 +39,21 @@ const SWIM_VERTICAL_VELOCITY = 4.0
 const WATER_EXIT_VELOCITY = 6.0
 const WATER_GRAVITY = 2
 var water_entry_point := Vector3()
-@onready var Effect_Underwater = $UserInterface/Effect_Underwater
+@onready var Effect_Underwater = $UserInterface/EffectUnderwater
 
 # LADDERS
 const LADDER_SPEED = 7.0
 const LADDER_EXIT_VELOCITY = 5.0
 
 # FOV
-const FOV_BASE = 90.0
+const FOV_BASE = 85.0
 const FOV_SPRINT = 3.0
 const FOV_CHANGE = 2.0
 const FOV_CHANGE_SPEED = 5.0
 
 # Bob variables
 const BOB_FREQUENCY = 3.0
-const BOB_AMPLITUDE = 0.03
+const BOB_AMPLITUDE = 0.03 # 0.03
 var bobTime = 0
 
 # View sawy
@@ -102,12 +103,14 @@ var grappling_time = 0.0;
 var grapple_cooldown := 0.0;
 var grapple_overshoot_y = 2.0
 var grapple_stop_timer : SceneTreeTimer
+var grapple_current_start_time := 0.0;
 const GRAPPLE_MAX_DISTANCE := 30.0;
 const GRAPPLE_START_TIME := 0.5; 
+const GRAPPLE_START_SPEED := 50.0;
 const GRAPPLE_COOLDOWN := 2.0;
 const GRAPPLE_TIME = 5.0
 const GRAPPLE_ACCEL = 25
-const GRAPPLE_SPEED = 5
+const GRAPPLE_SPEED = 5		# 5
 const GRAPPLE_STRENGTH = 50
 const GRAPPLE_MAX_TIME = 5.0;
 const GRAPPLE_PULL_UP = 0.75
@@ -134,6 +137,12 @@ const GRAPPLE_PULL_UP = 0.75
 # AudioBusses
 var AudioWaterBus = AudioServer.get_bus_index("Water")
 
+# Viewmodel
+@onready var Viewmodel = $Viewmodel
+
+# explosion
+@onready var ExplosionScn = preload("res://effects/explosions/explosion1.tscn")
+
 enum MOVEMENT {
 	NORMAL,
 	LADDER,
@@ -148,14 +157,23 @@ var movement : MOVEMENT = MOVEMENT.NORMAL;
 var last_fall_velocity := 0.0
 
 func _ready():
+	# capture mouse
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	
+	# limit fps
+	Engine.set_max_fps(144)
+	
+	
 	Head.transform.origin.y = HEAD_LEVEL
+	
+	# init viewmodel
+	Viewmodel._init_first_person()
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		Head.rotate_y(-event.relative.x * SENSITIVITY / 1000)
-		Camera.rotate_x(-event.relative.y * SENSITIVITY / 1000)
-		Camera.rotation.x = clamp(Camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+		CameraPivot.rotate_x(-event.relative.y * SENSITIVITY / 1000)
+		CameraPivot.rotation.x = clamp(CameraPivot.rotation.x, deg_to_rad(-89), deg_to_rad(89))
 
 func _physics_process(delta):
 	match movement:
@@ -172,8 +190,23 @@ func _physics_process(delta):
 		MOVEMENT.GRAPPLING:
 			_movement_grappling(delta)
 			
-	
+	# shooting
+	if Input.is_action_just_pressed("action_shoot"):
+		var projectile = preload("res://actors/projectiles/Projectile.tscn").instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
+		get_tree().root.add_child(projectile)
 		
+		projectile.ignore(self.get_rid())
+		projectile.initialize(false, 50.0, 0.4, 1.0, 0.0, 0.0, false, 3.0)
+		projectile.initialize_explosive(true, 10.0, 15.0, 1.0)
+		
+		var gun_origin = $Head/CameraPivot/Camera3D/GunPivot.global_transform.origin
+		var gun_end = gun_origin - Camera.global_transform.basis.z
+		projectile.shoot(gun_origin, gun_end)
+	
+	# viewmodel
+	_handle_viewmodel(delta)
+	
+	# grappling hook
 	_handle_grappling_line(delta)
 	
 	# swimming
@@ -187,9 +220,13 @@ func _physics_process(delta):
 	DoubleJumped.text = "DoubleJumped: "  + str(double_jumped)
 	WishJump.text = "WishJump: " + str(wish_jump_time > 0.0)
 
+func _handle_viewmodel(delta):
+	Viewmodel.target_model_rotation = Head.rotation.y
+	Viewmodel._set_aim_rotation(Vector2(0.0, CameraPivot.rotation.x))
+	Viewmodel._set_crouching(is_crouching)
+
 func _movement_normal(delta):
-	
-		
+
 	# Fall Damage
 	if last_fall_velocity < -RESISTANT_FALL_VELOCITY and is_on_floor(): ## Player Landed
 		print(round(exp(-last_fall_velocity/5)/2))
@@ -322,8 +359,8 @@ func _movement_normal(delta):
 	
 	# HeadBob
 	bobTime += delta * velocity.length() * float(is_on_floor())
-	Camera.transform.origin.y = _head_bob(bobTime).y
-	$Head/Camera3D/Arms.transform.origin = _head_bob(bobTime) * 0.2 + Vector3(0.05, -0.15, -0.2)
+	#CameraPivot.transform.origin.y = _head_bob(bobTime).y
+	$Head/CameraPivot/Camera3D/GunPivot.transform.origin = _head_bob(bobTime) * 0.2 + Vector3(0.05, -0.15, -0.2)
 	
 	# FOV 
 	var velocity_clamped = clamp(Vector2(velocity.x,velocity.z).length(), 0, WALK_SPEED) / (WALK_SPEED)
@@ -333,10 +370,11 @@ func _movement_normal(delta):
 	# View Sway
 	var view_sway = -(Input.get_axis("move_left","move_right") * deg_to_rad(VIEW_SWAY_STRENGTH) * velocity_clamped) 
 	Head.rotation.z = lerp(Head.rotation.z, view_sway, delta * VIEW_SWAY_SPEED)
-	Camera.rotation.x = clamp(Camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+	CameraPivot.rotation.x = clamp(CameraPivot.rotation.x, deg_to_rad(-89), deg_to_rad(89))
 	
 	# Switch to Wall Running
 	if is_on_wall_only() and !FloorRay.is_colliding() and !is_crouching:
+		
 		WallLeftRay.force_raycast_update()
 		WallRightRay.force_raycast_update()
 		# check if strafing into the wall
@@ -346,8 +384,6 @@ func _movement_normal(delta):
 	# Switch to grappling hook
 	if Input.is_action_just_pressed("action_grapple"):
 		_check_grappling(delta)
-	
-	
 	
 func _movement_swimming(delta):
 
@@ -404,6 +440,8 @@ func _movement_ladder():
 	move_and_slide()
 
 func _movement_wallrunning(delta):
+	
+	
 	
 	WallLeftRay.force_raycast_update()
 	WallRightRay.force_raycast_update()
@@ -511,7 +549,6 @@ func _movement_sliding(delta):
 		else:
 			# if sliding on plain ground decrease sliding time
 			slide_time -= delta
-			print(slide_time)
 			
 			if slide_time > 0.0:
 				slide_slope_speed = SLIDING_SPEED
@@ -580,7 +617,7 @@ func _check_grappling(delta):
 		var space_state = get_world_3d().direct_space_state
 		# use global coordinates, not local to node
 		var origin = global_transform.origin
-		var end = global_transform.origin - Camera.global_transform.basis.z * GRAPPLE_MAX_DISTANCE
+		var end = global_transform.origin - CameraPivot.global_transform.basis.z * GRAPPLE_MAX_DISTANCE
 		var query = PhysicsRayQueryParameters3D.create(origin, end)
 		var result := space_state.intersect_ray(query)
 		
@@ -594,7 +631,10 @@ func _check_grappling(delta):
 			grapple_point = result["position"]
 			if grapple_stop_timer is SceneTreeTimer:
 				grapple_stop_timer.disconnect("timeout", _stop_grappling)
-			grapple_stop_timer = get_tree().create_timer(GRAPPLE_START_TIME, true, true, false)
+			
+			grapple_current_start_time = global_transform.origin.distance_to(grapple_point) / GRAPPLE_START_SPEED
+			
+			grapple_stop_timer = get_tree().create_timer(grapple_current_start_time, true, true, false)
 			grapple_stop_timer.connect("timeout", _start_grappling.bind(global_transform.origin.distance_to(end)))
 			
 			
@@ -611,9 +651,6 @@ func _check_grappling(delta):
 			grapple_stop_timer = get_tree().create_timer(GRAPPLE_START_TIME, true, true, false)
 			grapple_stop_timer.connect("timeout", _stop_grappling)
 			
-			
-			
-
 func _start_grappling(distance):
 	GrapplingLine.visible = true
 	grapple_distance = distance
@@ -666,7 +703,6 @@ func _movement_grappling(delta):
 
 		GrapplingLine.look_at(grapple_point)
 		GrapplingLine.scale.z = global_transform.origin.distance_to(grapple_point) * 50
-		print(global_transform.origin.distance_to(grapple_point))		
 		
 		
 		if !is_on_floor():
@@ -710,7 +746,7 @@ func _handle_grappling_line(delta):
 		GrapplingHookHead.global_transform.origin = GrapplingLine.global_transform.origin + global_transform.origin.direction_to(grapple_point) * (GrapplingLine.scale.z / 45)		
 		if is_grappling:
 			GrapplingLine.look_at(grapple_point)
-			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, global_transform.origin.distance_to(grapple_point) * 50, delta * (1/GRAPPLE_START_TIME))	
+			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, global_transform.origin.distance_to(grapple_point) * 50, delta * (1/grapple_current_start_time))	
 		else:
 			GrapplingLine.look_at(grapple_point)
 			GrapplingLine.scale.z = lerp(GrapplingLine.scale.z, 0.0, delta * (1/GRAPPLE_START_TIME) * 2.0)
@@ -723,7 +759,6 @@ func _handle_grappling_line(delta):
 	if GrapplingHookHead.global_transform.origin.distance_to(grapple_point) > 1.0:
 			GrapplingHookHead.look_at(grapple_point)
 	
-	print(GrapplingHookHead.global_transform.origin.distance_to(global_transform.origin))
 
 func calculate_grapple_velocity(origin: Vector3, end: Vector3, height: float) -> Vector3:
 	var displacementY: float = end.y - origin.y;
@@ -741,7 +776,6 @@ func calculate_grapple_velocity(origin: Vector3, end: Vector3, height: float) ->
 func jump_to_position(target: Vector3, height: float) -> void:
 	velocity = calculate_grapple_velocity(global_transform.origin, target, height)
 	
-	
 func _head_bob(time) -> Vector3:
 	var pos := Vector3.ZERO
 	pos.y = sin(time * BOB_FREQUENCY) * BOB_AMPLITUDE
@@ -749,6 +783,7 @@ func _head_bob(time) -> Vector3:
 	return pos
 
 # Water
+
 func _enter_water(node):
 	if node == self: # only react to player entering
 		_stop_grappling()
@@ -787,3 +822,8 @@ func _exit_ladder(node):
 	if !is_on_floor():
 		velocity.y = LADDER_EXIT_VELOCITY
 	print("LADDER EXITED")
+
+func damage(damage: float = 0.0, knockback: Vector3 = Vector3(0, 0, 0)) -> void:
+	_stop_grappling()
+	movement = MOVEMENT.NORMAL
+	velocity += knockback
