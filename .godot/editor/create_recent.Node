@@ -1,8 +1,14 @@
+BoneAttachment3D
+AnimationTree
+MeshInstance3D
+Decal
+Node3D
+Camera3D
+SubViewport
+SubViewportContainer
 GPUParticles3D
 GPUParticlesCollisionBox3D
-MeshInstance3D
 MultiMeshInstance3D
-Node3D
 CharacterBody3D
 RayCast3D
 Node
@@ -10,7 +16,6 @@ CollisionShape3D
 Area3D
 AudioStreamPlayer3D
 TextureRect
-AnimationTree
 Label
 AudioStreamPlayer
 SkeletonIK3D
@@ -21,7 +26,6 @@ PinJoint3D
 StaticBody3D
 ColorRect
 CSGBox3D
-Camera3D
 VBoxContainer
 CSGCylinder3D
 Panel

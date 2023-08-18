@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dcg7g6fi5ps0h"]
+
+[ext_resource type="Texture2D" uid="uid://dkd8qvs4dfug2" path="res://experimental/grapple/ropetex.png" id="1_qj75o"]
+
+[resource]
+albedo_texture = ExtResource("1_qj75o")
+metallic_specular = 0.4
+roughness = 0.82
+uv1_scale = Vector3(8, 8, 8)
+uv1_triplanar = true

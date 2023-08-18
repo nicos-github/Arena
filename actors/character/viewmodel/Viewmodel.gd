@@ -26,7 +26,7 @@ func _init_first_person():
 	Head.set_cast_shadows_setting(GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
 	Body.set_cast_shadows_setting(GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
 	Arms.set_cast_shadows_setting(GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
-	Legs.set_cast_shadows_setting(GeometryInstance3D.SHADOW_CASTING_SETTING_ON)
+	Legs.set_cast_shadows_setting(GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY) # SHADOW_CASTING_SETTING_ON for visible legs
 
 func _set_aim_rotation(aim_rot: Vector2):
 	var rot = (aim_rot.y / (PI/2))
