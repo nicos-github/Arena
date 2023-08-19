@@ -10,7 +10,7 @@ var IS_HITSCAN := false
 var PROJECTILE_SPEED := 5.0
 var TRAIL_SPEED := 0.2
 var DAMAGE := 1.0
-var DAMAGE_DROPOFF := 0.0 	# per meter of flight path
+var DAMAGE_DROPOFF := 0.0 	# percentage per 10 meters of flight path
 var WALL_STRENGTH = 0.0		# wall banging power
 var HAS_GRAVITY := false
 var MAXIMUM_LIFETIME := 1.0	# projectile shot in air lifetime
@@ -33,6 +33,10 @@ var destination := Vector3()
 var current_gravity := 0.0
 var direction := Vector3()
 var lifetime := 0.0
+var creation_origin := Vector3()
+
+# bullethole
+@onready var BulletHole = preload("res://effects/bulletholes/BulletHole.tscn")
 
 func ignore(rid: RID) -> void:
 	ProjectileRay.add_exception_rid(rid)
@@ -54,6 +58,8 @@ func initialize_explosive(is_explosive := true, explosive_force := 1.0, explosiv
 	EXPLOSIVE_DAMAGE = explosive_damage
 
 func shoot(_origin := Vector3(), _destination := Vector3()) -> void:
+	
+	creation_origin = _origin
 	
 	if _origin == _destination:
 		print("Projectile Origin cant be the same as destination")
@@ -126,6 +132,7 @@ func hit() -> void:
 	is_active = false
 	
 	var collision_point = ProjectileRay.get_collision_point()
+	var collision_normal = ProjectileRay.get_collision_normal()
 	
 	# hit particles
 	TrailParticle.visible = false
@@ -133,9 +140,16 @@ func hit() -> void:
 	HitParticle.restart()
 	
 	# Play Hit Sound
-	# Calculate Damage Falloff
+	# Calculate Damage Falloff [percentage per 10 meter of flight path]
+	
 	# Create Bullet Hole
-	# If hit an entity, apply damage if damage is over zero
+	var bulletScn : Node3D = BulletHole.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
+	get_tree().root.add_child(bulletScn)
+	bulletScn.global_transform.origin = collision_point
+	bulletScn.look_at(collision_normal, collision_point.direction_to(creation_origin))
+	bulletScn.rotate(collision_normal, randf() * TAU)
+	# destroy bullet hole after 60 ingame seconds
+	get_tree().create_timer(60.0, false, true, false).timeout.connect(bulletScn.queue_free)
 	
 	# If explosive, create an explosion
 	if IS_EXPLOSIVE:
@@ -143,3 +157,8 @@ func hit() -> void:
 		get_tree().root.add_child(explosionScn)
 		explosionScn.global_transform.origin = collision_point
 		explosionScn.explode(EXPLOSIVE_SIZE, EXPLOSIVE_FORCE, EXPLOSIVE_DAMAGE)
+	
+	
+	# Else If not explosive and hit an entity, apply damage if damage is over zero
+	
+	

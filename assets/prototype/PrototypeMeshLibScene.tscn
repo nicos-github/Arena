@@ -1,0 +1,41 @@
+[gd_scene load_steps=8 format=3 uid="uid://lxgtw8tncxa0"]
+
+[ext_resource type="Texture2D" uid="uid://tkrb5r5qlwhm" path="res://assets/prototype/debug_tile.png" id="1_5m06p"]
+[ext_resource type="Texture2D" uid="uid://cx70qb2ml28lu" path="res://assets/prototype/debug_tile_normal.png" id="2_80r6m"]
+[ext_resource type="Material" uid="uid://xww0hu3wpysq" path="res://assets/prototype/mat_floor.tres" id="3_vsqr4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_30isr"]
+albedo_texture = ExtResource("1_5m06p")
+normal_enabled = true
+normal_texture = ExtResource("2_80r6m")
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_fcg1l"]
+material = SubResource("StandardMaterial3D_30isr")
+size = Vector3(2, 2, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_b0smy"]
+size = Vector3(2, 2, 2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_7ucb3"]
+material = ExtResource("3_vsqr4")
+size = Vector3(2, 2, 2)
+
+[node name="PrototypeMeshLibScene" type="Node3D"]
+
+[node name="WallCube" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_fcg1l")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="WallCube"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WallCube/StaticBody3D"]
+shape = SubResource("BoxShape3D_b0smy")
+
+[node name="FloorCube" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+mesh = SubResource("BoxMesh_7ucb3")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="FloorCube"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FloorCube/StaticBody3D"]
+shape = SubResource("BoxShape3D_b0smy")

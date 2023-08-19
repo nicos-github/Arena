@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://qtyfy6ents3u"]
+
+[ext_resource type="Texture2D" uid="uid://qdyi16piwa1o" path="res://assets/decals/bulletholes/bullet_hole.png" id="1_p6k47"]
+[ext_resource type="Texture2D" uid="uid://c1n2ierkt00qy" path="res://assets/decals/bulletholes/bullet_hole_normal.jpg" id="2_6nxgr"]
+
+[node name="BulletHole" type="Decal"]
+layers = 4
+size = Vector3(0.08, 0.08, 0.08)
+texture_albedo = ExtResource("1_p6k47")
+texture_normal = ExtResource("2_6nxgr")
+distance_fade_enabled = true
+distance_fade_begin = 15.0
+distance_fade_length = 5.0
+cull_mask = 1048573

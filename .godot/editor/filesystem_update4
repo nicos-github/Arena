@@ -1,9 +1,13 @@
 res://default_bus_layout.tres
 res://actors/character/Character.tscn
 res://assets/prototype/mat_floor.tres
+res://experimental/grapple/grapple_material.tres
 res://maps/underwater_shader.gdshader
 res://maps/water_shader.gdshader
 res://assets/prototype/mat_wall.tres
-res://maps/the_world.tscn
 res://actors/character/Character.gd
-res://experimental/grapple/grapple_material.tres
+res://maps/the_world.tscn
+res://actors/projectiles/Projectile.tscn
+res://actors/projectiles/projectile.gd
+res://maps/debug_01/DEBUG.tscn
+res://assets/prototype/PrototypeMeshLibScene.tscn

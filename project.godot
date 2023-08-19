@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Arena"
-run/main_scene="res://maps/the_world.tscn"
+run/main_scene="res://maps/debug_01/DEBUG.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
 boot_splash/show_image=false
 config/icon="res://icon.svg"
@@ -114,6 +114,7 @@ debug_suicide={
 
 3d_render/layer_2="VIEWMODEL"
 3d_render/layer_3="DECALS"
+3d_physics/layer_3="BOUNDARIES"
 3d_physics/layer_4="ENTITY"
 3d_physics/layer_7="LADDER"
 3d_physics/layer_8="WATER"
