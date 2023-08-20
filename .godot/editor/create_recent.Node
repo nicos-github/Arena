@@ -1,3 +1,4 @@
+ProgressBar
 SpotLight3D
 LightmapGI
 CollisionShape3D
@@ -30,4 +31,3 @@ PinJoint3D
 ColorRect
 CSGBox3D
 VBoxContainer
-CSGCylinder3D

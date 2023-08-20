@@ -7,6 +7,7 @@ extends CharacterBody3D
 
 const HEAD_LEVEL = 0.6
 const SENSITIVITY = 1
+const FALL_DAMAGE_GRACE = 15
 
 var speed = 0
 const WALK_SPEED = 5.5
@@ -79,19 +80,20 @@ const WALL_MAX_RUN_TIME = 3.0
 const WALL_JUMP_EXIT_SPEED = 8.0
 const WALL_JUMP_UP_FORCE = 5.0
 const WALL_JUMP_SIDE_FORCE = 7.0
-const WALL_RUN_GRAVITY = 1.5
+const WALL_RUN_GRAVITY = 10.0
 const WALL_RUN_FOV_CHANGE = 5
 const WALL_RUN_FOV_CHANGE_SPEED = 5
 const WALL_RUN_VIEW_ROLL = 10
-const WALL_RUN_VIEW_ROLL_SPEED = 5.0
+const WALL_RUN_VIEW_ROLL_SPEED = 3.0
 const WALL_RUN_JUMP_STAMINA_COST = 1.5
 const WALL_EXIT_TIMER = 0.01
-
 var is_wallrunning = false
 var is_exiting_wall = false
 var exiting_wall_time = 0.0
-var last_wall_run := 0.0 # = -1.0 is left, 0 is none 1.0 is right
+var last_wall_normal := Vector3() 
 var wall_run_stamina = 0.0
+# Wallrun UI
+@onready var WallRunProgressBar = $UserInterface/WallRunProgressBar
 
 # jump
 var wish_jump_time = 0.0
@@ -138,14 +140,19 @@ const GRAPPLE_COOLDOWN := 2.0;
 const GRAPPLE_TIME = 5.0
 const GRAPPLE_ACCEL = 25
 const GRAPPLE_SPEED = 5		# 5
+const GRAPPLE_DIRECT_SPEED = 10
 const GRAPPLE_STRENGTH = 50
 const GRAPPLE_MAX_TIME = 5.0;
 const GRAPPLE_PULL_UP = 0.75
+const GRAPPLING_VIEW_ROLL_STRENGTH = 0.4
+const GRAPPLING_VIEW_ROLL_SPEED = 5.0
 # Grapple Audio
 @onready var SfxGrapplingThrow = $Audio/Grappling/SfxGrapplingThrow
 @onready var SfxGrapplingAttach = $Audio/Grappling/SfxGrapplingAttach
 @onready var SfxGrapplingHooking = $Audio/Grappling/SfxGrapplingHooking
 @onready var SfxGrapplingRetrieve = $Audio/Grappling/SfxGrapplingRetrieve
+# Grapple UI
+@onready var GrappleProgressBar = $UserInterface/GrappleProgressBar
 
 # UI
 @onready var FPSLabel = $UserInterface/Information/FPSLabel
@@ -270,7 +277,8 @@ func _physics_process(delta):
 
 	# reset wall run 
 	if is_on_floor() and movement != MOVEMENT.GRAPPLING:
-		last_wall_run = 0.0
+		last_wall_normal = Vector3(0.0, 1.0, 0.0)
+		wall_run_stamina = WALL_MAX_RUN_TIME
 	
 	# swimming
 	if is_swimming:
@@ -282,6 +290,9 @@ func _physics_process(delta):
 	VSpeedLabel.text = "Vertical Speed: "  + str(velocity.y).pad_decimals(3)
 	DoubleJumped.text = "DoubleJumped: "  + str(double_jumped)
 	WishJump.text = "WishJump: " + str(wish_jump_time > 0.0)
+	GrappleProgressBar.value = (GRAPPLE_COOLDOWN - grapple_cooldown) / GRAPPLE_COOLDOWN
+	WallRunProgressBar.value = wall_run_stamina / WALL_MAX_RUN_TIME
+	
 
 func _handle_viewmodel(delta):
 	ViewmodelCharacter.target_model_rotation = Head.rotation.y
@@ -307,7 +318,11 @@ func _movement_normal(delta):
 	
 	# Fall Damage
 	if last_fall_velocity < -RESISTANT_FALL_VELOCITY and is_on_floor(): ## Player Landed
-		print(round(exp(-last_fall_velocity/5)/2))
+		var fall_dmg = round(pow(-last_fall_velocity, 1.3) / 5 )
+		if fall_dmg > FALL_DAMAGE_GRACE:
+			damage(fall_dmg)
+			print(fall_dmg)
+		
 		last_fall_velocity = 0
 	
 	# Add the gravity
@@ -450,15 +465,15 @@ func _movement_normal(delta):
 	CameraPivot.rotation.x = clamp(CameraPivot.rotation.x, deg_to_rad(-89), deg_to_rad(89))
 	
 	# Switch to Wall Running
-	if is_on_wall_only() and !FloorRay.is_colliding() and !is_crouching:
-		
+	if !FloorRay.is_colliding() and !is_crouching: # and is_on_wall_only()
+
 		WallLeftRay.force_raycast_update()
 		WallRightRay.force_raycast_update()
 		# check if strafing into the wall
 		if (Input.is_action_pressed("move_left") and WallLeftRay.is_colliding()) or (Input.is_action_pressed("move_right") and WallRightRay.is_colliding()):
 			movement = MOVEMENT.WALLRUNNING
-	
-	
+
+
 			
 	# Switch to grappling hook
 	if Input.is_action_just_pressed("action_grapple"):
@@ -528,8 +543,9 @@ func _movement_wallrunning(delta):
 	
 	var wall_left = WallLeftRay.is_colliding()
 	var wall_right = WallRightRay.is_colliding()
+	
 		
-	is_wallrunning = (wall_left or wall_right) and !FloorRay.is_colliding() and !is_exiting_wall
+	is_wallrunning = !(wall_left and wall_right) and (wall_left or wall_right) and !FloorRay.is_colliding() and !is_exiting_wall 
 	
 	if is_exiting_wall:
 		exiting_wall_time += delta
@@ -538,9 +554,8 @@ func _movement_wallrunning(delta):
 		exiting_wall_time = 0.0
 		is_exiting_wall = false
 	
-	if is_wallrunning:
-		var wall_run = -1.0 if wall_left else 1.0
-		if last_wall_run != wall_run:
+	if is_wallrunning and is_on_wall():
+		if last_wall_normal != get_wall_normal():
 			wall_run_stamina = WALL_MAX_RUN_TIME
 	
 	if is_wallrunning and wall_run_stamina > 0.0:
@@ -548,6 +563,7 @@ func _movement_wallrunning(delta):
 		wall_run_stamina -= delta
 		
 		double_jumped = false
+		
 		
 		var wall_normal: Vector3 = WallLeftRay.get_collision_normal() if wall_left else WallRightRay.get_collision_normal()
 				
@@ -559,7 +575,8 @@ func _movement_wallrunning(delta):
 		
 		# wallrun gravity if on wall
 		if is_on_wall():
-			velocity.y = -(WALL_RUN_GRAVITY  * (wall_run_stamina / WALL_MAX_RUN_TIME))
+			velocity.y = -(WALL_RUN_GRAVITY  * pow((WALL_MAX_RUN_TIME - wall_run_stamina) / WALL_MAX_RUN_TIME, 4.0)) # make gravity effect stronger on wallrun end
+		
 		
 		velocity += wall_forward * WALL_RUN_SPEED * delta
 		velocity -= wall_normal * 20 * delta
@@ -570,6 +587,7 @@ func _movement_wallrunning(delta):
 			SfxJump.play()
 			is_exiting_wall = true
 			wall_run_stamina -= WALL_RUN_JUMP_STAMINA_COST
+			
 		
 		velocity = velocity.clamp(-Vector3(WALL_RUN_SPEED, WALL_JUMP_UP_FORCE, WALL_RUN_SPEED), Vector3(WALL_RUN_SPEED, WALL_JUMP_UP_FORCE, WALL_RUN_SPEED))
 		
@@ -588,13 +606,15 @@ func _movement_wallrunning(delta):
 		
 		
 		# Last Wallrun
-		last_wall_run = -1.0 if wall_left else 1.0
-		print(last_wall_run)
+		if is_on_wall():
+			last_wall_normal = get_wall_normal()
 		
 	else:
 		
 		movement = MOVEMENT.NORMAL
-			
+	
+	
+	
 	move_and_slide()
 
 func _movement_sliding(delta):
@@ -830,11 +850,9 @@ func _movement_grappling(delta):
 		
 		
 		if result.has("collider"):
-			print(result["collider"])
 			if grapple_point == original_grapple_point:
 				grapple_point = result["position"]
 			
-			print("changed point")
 		else:
 			# to counter collision issues, recast a ray from the player to the point to detect walls
 			# if clear, reset the point
@@ -873,9 +891,18 @@ func _movement_grappling(delta):
 			_stop_grappling()
 
 		move_and_slide()
-
+		
 		if Input.is_action_just_pressed("action_grapple"):
 			_stop_grappling()
+		
+			
+		# Grappling View Roll
+		var vel_to_point = velocity.dot(global_transform.origin.direction_to(grapple_point))
+		var vp_to_cam = -Camera.basis.z.dot(global_transform.origin.direction_to(grapple_point))
+		var target_roll = deg_to_rad(vp_to_cam * vel_to_point) * GRAPPLING_VIEW_ROLL_STRENGTH
+		Head.rotation.z = lerp(Head.rotation.z, target_roll, delta * GRAPPLING_VIEW_ROLL_SPEED )
+		
+		
 			
 	else:
 		_stop_grappling()
@@ -933,7 +960,11 @@ func calculate_grapple_velocity(origin: Vector3, end: Vector3, height: float) ->
 	return vel
 
 func jump_to_position(target: Vector3, height: float) -> void:
-	velocity = calculate_grapple_velocity(global_transform.origin, target, height)
+	var vel = calculate_grapple_velocity(global_transform.origin, target, height)
+	var vel_y = vel.y
+	vel = vel.limit_length(GRAPPLE_DIRECT_SPEED)
+	vel.y = vel_y
+	velocity = vel
 	
 func _head_bob(time) -> Vector3:
 	var pos := Vector3.ZERO

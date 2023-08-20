@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://cikkwgajbra35"]
+[gd_scene load_steps=51 format=3 uid="uid://cikkwgajbra35"]
 
 [ext_resource type="Script" path="res://actors/character/Character.gd" id="1_gxiqw"]
 [ext_resource type="Script" path="res://actors/character/viewmodel/Viewmodel.gd" id="2_v7472"]
@@ -8,6 +8,8 @@
 [ext_resource type="Shader" path="res://maps/underwater_shader.gdshader" id="6_pg1xn"]
 [ext_resource type="Texture2D" uid="uid://54seuit6mw24" path="res://experimental/composition.png" id="7_4rdws"]
 [ext_resource type="AudioStream" uid="uid://dyufevdmufhk2" path="res://sfx/actors/player/jump.wav" id="8_5igk0"]
+[ext_resource type="Texture2D" uid="uid://cu5w201j72nli" path="res://hud/icons/grapple.png" id="8_dtw8n"]
+[ext_resource type="Texture2D" uid="uid://bsptgdayt7mcs" path="res://hud/icons/wallrun.png" id="9_0t40f"]
 [ext_resource type="AudioStream" uid="uid://7fbxir6sjmhh" path="res://sfx/actors/player/djump.wav" id="9_4q1r5"]
 [ext_resource type="AudioStream" uid="uid://gxgf4sdvlnwl" path="res://sfx/actors/player/grappling_throw.wav" id="10_m6fan"]
 [ext_resource type="AudioStream" uid="uid://re2herothnpe" path="res://sfx/actors/player/grappling_attach.wav" id="11_eoga3"]
@@ -516,6 +518,38 @@ font_size = 24
 outline_size = 6
 outline_color = Color(0, 0, 0, 1)
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_glexk"]
+texture = ExtResource("8_dtw8n")
+modulate_color = Color(0.635294, 0.654902, 0.568627, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u024b"]
+bg_color = Color(0, 0.545098, 0.27451, 0.505882)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.588235, 0.572549, 0, 0.498039)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_uqcay"]
+texture = ExtResource("9_0t40f")
+modulate_color = Color(0.572549, 0.662745, 0.670588, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_73gb5"]
+bg_color = Color(0, 0.498039, 0.654902, 0.505882)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.745098, 0.27451, 1, 0.498039)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
 [node name="Character" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 collision_layer = 136
@@ -789,11 +823,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
 
 [node name="WallLeftRay" type="RayCast3D" parent="Head/Wallrunning"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-target_position = Vector3(-1.2, 0, 0)
+target_position = Vector3(-1, 0, 0)
 
 [node name="WallRightRay" type="RayCast3D" parent="Head/Wallrunning"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-target_position = Vector3(1.2, 0, 0)
+target_position = Vector3(1, 0, 0)
 
 [node name="FloorRay" type="RayCast3D" parent="Head/Wallrunning"]
 target_position = Vector3(0, -0.5, 0)
@@ -892,6 +926,40 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("7_4rdws")
+
+[node name="GrappleProgressBar" type="ProgressBar" parent="UserInterface"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 656.0
+offset_top = -188.0
+offset_right = 702.0
+offset_bottom = -141.0
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxTexture_glexk")
+theme_override_styles/fill = SubResource("StyleBoxFlat_u024b")
+max_value = 1.0
+value = 0.5
+fill_mode = 3
+show_percentage = false
+
+[node name="WallRunProgressBar" type="ProgressBar" parent="UserInterface"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 656.0
+offset_top = -126.0
+offset_right = 702.0
+offset_bottom = -79.0
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxTexture_uqcay")
+theme_override_styles/fill = SubResource("StyleBoxFlat_73gb5")
+max_value = 1.0
+value = 0.5
+fill_mode = 3
+show_percentage = false
 
 [node name="Audio" type="Node" parent="."]
 
