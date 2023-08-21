@@ -1,1 +1,2 @@
+WeaponResource
 StandardMaterial3D

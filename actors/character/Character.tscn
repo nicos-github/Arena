@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3 uid="uid://cikkwgajbra35"]
+[gd_scene load_steps=52 format=3 uid="uid://cikkwgajbra35"]
 
 [ext_resource type="Script" path="res://actors/character/Character.gd" id="1_gxiqw"]
 [ext_resource type="Script" path="res://actors/character/viewmodel/Viewmodel.gd" id="2_v7472"]
@@ -550,6 +550,13 @@ corner_radius_top_right = 1
 corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1gtaa"]
+bg_color = Color(0.121569, 0.121569, 0.121569, 0.501961)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [node name="Character" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 collision_layer = 136
@@ -960,6 +967,27 @@ max_value = 1.0
 value = 0.5
 fill_mode = 3
 show_percentage = false
+
+[node name="WeaponStats" type="VBoxContainer" parent="UserInterface"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -352.0
+offset_top = -80.0
+offset_right = -27.0
+offset_bottom = -19.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="AmmoLabel" type="Label" parent="UserInterface/WeaponStats"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_1gtaa")
+text = "Ammo: 10 / 10"
+horizontal_alignment = 1
 
 [node name="Audio" type="Node" parent="."]
 

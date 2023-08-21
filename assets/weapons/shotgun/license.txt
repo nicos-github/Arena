@@ -1,0 +1,11 @@
+Model Information:
+* title:	ASN-95 Shotgun
+* source:	https://sketchfab.com/3d-models/asn-95-shotgun-bdb1b9d7aafc4c8395c964e5d6cac397
+* author:	Bl4ckGh0st (https://sketchfab.com/Bl4ckGh0st)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "ASN-95 Shotgun" (https://sketchfab.com/3d-models/asn-95-shotgun-bdb1b9d7aafc4c8395c964e5d6cac397) by Bl4ckGh0st (https://sketchfab.com/Bl4ckGh0st) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

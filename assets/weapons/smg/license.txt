@@ -1,0 +1,11 @@
+Model Information:
+* title:	HELLFIRE Compact Submachine Gun
+* source:	https://sketchfab.com/3d-models/hellfire-compact-submachine-gun-a61d1fc878944ee5934f30f4530eed94
+* author:	Bl4ckGh0st (https://sketchfab.com/Bl4ckGh0st)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "HELLFIRE Compact Submachine Gun" (https://sketchfab.com/3d-models/hellfire-compact-submachine-gun-a61d1fc878944ee5934f30f4530eed94) by Bl4ckGh0st (https://sketchfab.com/Bl4ckGh0st) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

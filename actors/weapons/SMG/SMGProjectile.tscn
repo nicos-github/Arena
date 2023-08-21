@@ -1,0 +1,113 @@
+[gd_scene load_steps=12 format=3 uid="uid://dm65r6gqjf2sb"]
+
+[ext_resource type="Script" path="res://actors/projectiles/projectile.gd" id="1_gjtos"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_htaqe"]
+radial_segments = 8
+rings = 4
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ihvvj"]
+direction = Vector3(0, 0, 0)
+spread = 0.0
+gravity = Vector3(0, 0, 0)
+attractor_interaction_enabled = false
+collision_mode = 2
+
+[sub_resource type="Curve" id="Curve_2jako"]
+_data = [Vector2(0, 1), -1.77561, -1.0, 0, 1, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mlari"]
+blend_mode = 1
+cull_mode = 2
+albedo_color = Color(0.196078, 0.196078, 0.196078, 1)
+emission_enabled = true
+emission = Color(0.537255, 0.521569, 0.458824, 1)
+use_particle_trails = true
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_aw5fx"]
+material = SubResource("StandardMaterial3D_mlari")
+size = 0.05
+sections = 20
+section_length = 0.1
+curve = SubResource("Curve_2jako")
+
+[sub_resource type="Curve" id="Curve_xsoid"]
+_data = [Vector2(0, 0.336842), 0.0, 5.02613, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_nqkvk"]
+curve = SubResource("Curve_xsoid")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_aymhk"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+direction = Vector3(1, 1, 1)
+spread = 180.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0
+linear_accel_min = -4.0
+linear_accel_max = -4.0
+scale_min = 0.01
+scale_max = 0.05
+scale_curve = SubResource("CurveTexture_nqkvk")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nosex"]
+blend_mode = 1
+albedo_color = Color(0.0196078, 0.0196078, 0.0196078, 0.439216)
+emission_enabled = true
+emission = Color(0.47451, 0.47451, 0.47451, 1)
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_4ml2u"]
+material = SubResource("StandardMaterial3D_nosex")
+
+[node name="SMGProjectile" type="Node3D" node_paths=PackedStringArray("ProjectileNode", "ProjectileRay", "TrailNode", "TrailParticle", "HitParticle")]
+script = ExtResource("1_gjtos")
+PROJECTILE_SPEED = 500.0
+DAMAGE = 25.0
+DAMAGE_DROPOFF = 5.0
+max_bounces = 2
+ProjectileNode = NodePath("ProjectileNode")
+ProjectileRay = NodePath("ProjectileRay")
+TrailNode = NodePath("Trail")
+TrailParticle = NodePath("Trail/TrailParticle")
+HitParticle = NodePath("Trail/HitParticle")
+
+[node name="ProjectileNode" type="Node3D" parent="."]
+
+[node name="ProjectileMesh" type="MeshInstance3D" parent="ProjectileNode"]
+transform = Transform3D(0.02, 0, 0, 0, -8.74228e-10, -0.02, 0, 0.02, -8.74228e-10, 0, 0, 0)
+mesh = SubResource("SphereMesh_htaqe")
+
+[node name="ProjectileRay" type="RayCast3D" parent="."]
+enabled = false
+target_position = Vector3(0, 0, 1)
+collision_mask = 9
+debug_shape_custom_color = Color(1, 0, 0, 1)
+
+[node name="Trail" type="Node3D" parent="."]
+
+[node name="TrailParticle" type="GPUParticles3D" parent="Trail"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0198477, 0)
+amount = 1
+lifetime = 3.0
+visibility_aabb = AABB(-800, -800, -800, 1600, 1600, 1600)
+trail_enabled = true
+trail_lifetime = 0.2
+process_material = SubResource("ParticleProcessMaterial_ihvvj")
+draw_pass_1 = SubResource("RibbonTrailMesh_aw5fx")
+
+[node name="HitParticle" type="GPUParticles3D" parent="Trail"]
+emitting = false
+amount = 16
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+process_material = SubResource("ParticleProcessMaterial_aymhk")
+draw_pass_1 = SubResource("QuadMesh_4ml2u")

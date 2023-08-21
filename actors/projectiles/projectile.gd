@@ -6,26 +6,34 @@ class_name Projectile
 
 const GRAVITY = 19.62
 
-var IS_HITSCAN := false
-var PROJECTILE_SPEED := 5.0
-var TRAIL_SPEED := 0.2
-var DAMAGE := 1.0
-var DAMAGE_DROPOFF := 0.0 	# percentage per 10 meters of flight path
-var WALL_STRENGTH = 0.0		# wall banging power
-var HAS_GRAVITY := false
-var MAXIMUM_LIFETIME := 1.0	# projectile shot in air lifetime
+@export var IS_HITSCAN := false
+@export var PROJECTILE_SPEED := 5.0
+@export var TRAIL_SPEED := 0.2
+@export var DAMAGE := 1.0
+@export var DAMAGE_DROPOFF := 0.0 	# percentage per 10 meters of flight path
+@export var WALL_STRENGTH = 0.0		# wall banging power
+@export var HAS_GRAVITY := false
+@export var MAXIMUM_LIFETIME := 1.0	# projectile shot in air lifetime
 
 # explosives
-var IS_EXPLOSIVE := false
-var EXPLOSIVE_FORCE := 1.0
-var EXPLOSIVE_SIZE := 1.0
-var EXPLOSIVE_DAMAGE := 1.0
+@export_category("Explosive")
+@export var IS_EXPLOSIVE := false
+@export var EXPLOSIVE_FORCE := 1.0
+@export var EXPLOSIVE_SIZE := 1.0
+@export var EXPLOSIVE_DAMAGE := 1.0
 
-@onready var ProjectileNode = $ProjectileNode
-@onready var ProjectileRay = $ProjectileRay
-@onready var TrailNode = $Trail
-@onready var TrailParticle = $Trail/TrailParticle
-@onready var HitParticle = $Trail/HitParticle
+# bounce
+@export_category("Bounce")
+@export var IS_BOUNCY := false
+@export var max_bounces : int = 20
+@export var bounces : int = 0
+
+@export_category("Nodes")
+@export var ProjectileNode : Node3D
+@export var ProjectileRay : RayCast3D
+@export var TrailNode : Node3D
+@export var TrailParticle : GPUParticles3D
+@export var HitParticle : GPUParticles3D
 
 # active projectile ( is flying )
 var is_active := false
@@ -81,7 +89,7 @@ func shoot(_origin := Vector3(), _destination := Vector3()) -> void:
 	TrailParticle.process_material.initial_velocity_max = PROJECTILE_SPEED
 	TrailParticle.trail_lifetime = TRAIL_SPEED
 	TrailParticle.one_shot = true
-	TrailParticle.amount = 16
+	TrailParticle.amount = 4
 	TrailParticle.explosiveness = 1.0
 	TrailParticle.restart()
 	
@@ -114,7 +122,6 @@ func _physics_process(delta):
 		ProjectileRay.target_position = ray_step_gravity			# look where the projectile will land next frame
 		
 		ProjectileRay.force_raycast_update()						# update the raycast
-		print(ProjectileRay.is_colliding())
 		
 		# Update Projectile Position by Speed
 		var step = position + ray_step								# calculate the position of the projectile next frame
@@ -129,10 +136,29 @@ func _physics_process(delta):
 		
 
 func hit() -> void:
-	is_active = false
 	
 	var collision_point = ProjectileRay.get_collision_point()
 	var collision_normal = ProjectileRay.get_collision_normal()
+	
+	# set location to the hit point
+	ProjectileNode.global_transform.origin = collision_point + ( collision_normal * 0.1 )
+	
+	# handle bounce, if bounce is left
+	if IS_BOUNCY:
+		bounces += 1
+		if bounces <= max_bounces:
+			# reset gravity if bounces off floor or ramp
+			if (abs(collision_normal.dot(Vector3.UP)) > 0.5):
+				current_gravity = 0.0 # reset gravity
+			direction = direction.bounce(collision_normal)
+			print("BOUNCES" + str(bounces))
+			return
+	
+	# deactivate physics processing on this projectile
+	is_active = false
+	
+	# hide projectile itself
+	ProjectileNode.visible = false
 	
 	# hit particles
 	TrailParticle.visible = false
@@ -141,6 +167,9 @@ func hit() -> void:
 	
 	# Play Hit Sound
 	# Calculate Damage Falloff [percentage per 10 meter of flight path]
+	var distance = global_transform.origin.distance_to(creation_origin)
+	var damage_dropoff = DAMAGE * (DAMAGE_DROPOFF * (distance / 10))
+	print("DAMAGE " + str(damage_dropoff))
 	
 	# Create Bullet Hole
 	var bulletScn : Node3D = BulletHole.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)

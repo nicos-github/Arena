@@ -1,5 +1,5 @@
 res://default_bus_layout.tres
-res://maps/debug_01/DEBUG.tscn
+res://assets/weapons/smg/SMG.tscn
 res://assets/prototype/mat_floor.tres
 res://experimental/grapple/grapple_material.tres
 res://maps/underwater_shader.gdshader
@@ -8,5 +8,13 @@ res://assets/prototype/mat_wall.tres
 res://maps/the_world.tscn
 res://actors/character/Character.tscn
 res://actors/projectiles/Projectile.tscn
-res://assets/prototype/PrototypeMeshLibScene.tscn
+res://maps/debug_01/DEBUG.tscn
+res://actors/character/viewmodel/ViewmodelCamera.tscn
+res://actors/weapons/WeaponManager.gd
 res://actors/character/Character.gd
+res://actors/weapons/WeaponResource.gd
+res://actors/weapons/Shotgun/ShotgunResource.tres
+res://actors/weapons/SMG/SMGResource.tres
+res://actors/projectiles/projectile.gd
+res://actors/weapons/Shotgun/ShotgunProjectile.tscn
+res://actors/weapons/SMG/SMGProjectile.tscn

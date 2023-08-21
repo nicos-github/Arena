@@ -11,8 +11,8 @@ const FALL_DAMAGE_GRACE = 15
 
 var speed = 0
 const WALK_SPEED = 5.5
-var is_sprinting = false
-const SPRINT_SPEED = 8.0
+var is_walking = false
+const SPRINT_SPEED = 8.5
 
 # Crouching
 @onready var CrouchRay = $CrouchRay
@@ -21,8 +21,8 @@ const CROUCH_SPEED = 3.0
 const CROUCH_HEIGHT = 0.5 # multiplier for base height of player which is around 1.8m
 const CROUCH_HEAD_LEVEL_DECREMENT = 0.5 # how much the head level shrinks
 
-const GROUND_ACCELERATION = 70.0
-const GROUND_DRAG = 10.0
+const GROUND_ACCELERATION = 60.0
+const GROUND_DRAG = 12.0
 const AIR_ACCELERATION = 25.0
 const AIR_DRAG = 1.0
 
@@ -47,7 +47,7 @@ const LADDER_SPEED = 7.0
 const LADDER_EXIT_VELOCITY = 5.0
 
 # FOV
-const FOV_BASE = 85.0
+const FOV_BASE = 100.0
 const FOV_SPRINT = 3.0
 const FOV_CHANGE = 2.0
 const FOV_CHANGE_SPEED = 5.0
@@ -61,15 +61,16 @@ var bob_jump_time = 0.0
 
 # View sawy
 const VIEW_SWAY_SPEED = 3.0
-const VIEW_SWAY_STRENGTH = 1.0
+const VIEW_SWAY_STRENGTH = 2.0
 
 # Screen shake
-const SHAKE_INTENSITY := 0.1
 const SHAKE_VIEW_MODEL_INTENSITY := 0.1
-const SHAKE_X := 90.0
-const SHAKE_Y := 150.0
-const SHAKE_MAX_TIME := 0.5
+const SHAKE_X := 30.0
+const SHAKE_Y := 50.0
+var shake_max_time := 0.5
 var shake_time := 0.0 
+var shake_intensity := 0.0
+var shake_speed := 0.0
 
 # Wallrunning
 @onready var WallLeftRay = $Head/Wallrunning/WallLeftRay
@@ -104,7 +105,7 @@ var double_jumped = false
 var is_sliding = false
 var slide_time = 0.0
 const SLIDING_TIME = 0.75
-const SLIDING_SPEED = 7
+const SLIDING_SPEED = 8
 const SLIDING_ACCEL = 8
 const SLIDING_DRAG = 3
 const SLIDE_FOV_CHANGE = 10
@@ -113,9 +114,13 @@ const SLIDE_MIN_SPEED = CROUCH_SPEED - 0.1 # under this speed sliding will stop
 
 # Viewmodel Action Transforms
 const VIEWMODEL_ACTION_RESET := 5.0
+const JUMP_VIEW_MODEL_HEIGHT = 0.05
+const LAND_VIEW_MODEL_HEIGHT = -0.2
+var jump_modify = 0.0
 var viewmodel_action_x := 0.0
 var viewmodel_action_y := 0.0
 var viewmodel_action_z := 0.0
+
 var target_viewmodel_action_x := 0.0
 var target_viewmodel_action_y := 0.0
 var target_viewmodel_action_z := 0.0
@@ -160,6 +165,7 @@ const GRAPPLING_VIEW_ROLL_SPEED = 5.0
 @onready var VSpeedLabel = $UserInterface/Information/VSpeedLabel
 @onready var DoubleJumped = $UserInterface/Information/DoubleJumped
 @onready var WishJump = $UserInterface/Information/WishJump
+@onready var AmmoLabel = $UserInterface/WeaponStats/AmmoLabel
 
 # Audio
 @onready var SfxJump = $Audio/Jump/SfxJump
@@ -175,6 +181,10 @@ var AudioWaterBus = AudioServer.get_bus_index("Water")
 @onready var ViewmodelCharacter = $Viewmodel
 @onready var ViewmodelCamera = $Head/CameraPivot/Camera3D/SubViewportContainer/SubViewport/ViewmodelCamera
 @onready var ViewmodelCameraPivot = $Head/CameraPivot/Camera3D/SubViewportContainer/SubViewport/ViewmodelCamera/Pivot
+
+# WeaponManager
+@onready var WeaponManager = $Head/CameraPivot/Camera3D/SubViewportContainer/SubViewport/ViewmodelCamera/Pivot/WeaponManager
+
 # explosion
 @onready var ExplosionScn = preload("res://effects/explosions/explosion1.tscn")
 
@@ -203,6 +213,9 @@ func _ready():
 	
 	# init viewmodel character ( feet )
 	ViewmodelCharacter._init_first_person()
+	
+	# weapon manager ammo signal
+	WeaponManager.connect("update_ammo", on_weapon_manager_update_ammo)
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
@@ -234,29 +247,33 @@ func _physics_process(delta):
 			_movement_grappling(delta)
 			
 	# shooting
-	if Input.is_action_just_pressed("action_shoot"):
+	if Input.is_action_just_pressed("action_shoot") and false:
 		var projectile = preload("res://actors/projectiles/Projectile.tscn").instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 		get_tree().root.add_child(projectile)
 		
 		projectile.ignore(self.get_rid())
-		projectile.initialize(false, 50.0, 0.4, 1.0, 0.0, 0.0, false, 3.0)
+		projectile.initialize(false, 30.0, 0.1, 1.0, 0.0, 0.0, true, 15.0)
 		projectile.initialize_explosive(true, 10.0, 15.0, 1.0)
 		
 		var gun_origin = Camera.global_transform.origin
 		var gun_end = gun_origin - Camera.global_transform.basis.z
 		projectile.shoot(gun_origin, gun_end)
+		
+		apply_shake(0.3, 0.02, 1.7)
 	
 	# viewmodel
 	_handle_viewmodel(delta)
 	
-	# screenshake ( must go under handle_viewmodel )
+	# screenshake
 	if shake_time > 0.0:
 		shake_time -= delta
-	Camera.transform.origin = Vector3(sin(shake_time * SHAKE_X) * SHAKE_INTENSITY, cos(shake_time * SHAKE_Y) * SHAKE_INTENSITY, 0.0) * (shake_time / SHAKE_MAX_TIME)
+	Camera.transform.origin = Vector3(sin(shake_time * SHAKE_X * shake_speed) * shake_intensity, cos(shake_time * SHAKE_Y * shake_speed) * shake_intensity, 0.0) * (shake_time / shake_max_time)
 	var model_shake = Camera.transform.origin * SHAKE_VIEW_MODEL_INTENSITY
 	
 	# viewmodel bob
-	var jump_modify = float(!is_on_floor()) * 0.01
+	if !is_on_floor():
+		jump_modify = JUMP_VIEW_MODEL_HEIGHT
+	jump_modify = lerp(jump_modify, 0.0,  BOB_RESET_TIME * delta * 4.0)
 	bob_jump_time = lerp(bob_jump_time, jump_modify, BOB_RESET_TIME * delta * 2.0)
 	var model_bob = _head_bob(bob_time) * 0.2 + Vector3(0.0, bob_jump_time, 0.0)
 	
@@ -292,7 +309,7 @@ func _physics_process(delta):
 	WishJump.text = "WishJump: " + str(wish_jump_time > 0.0)
 	GrappleProgressBar.value = (GRAPPLE_COOLDOWN - grapple_cooldown) / GRAPPLE_COOLDOWN
 	WallRunProgressBar.value = wall_run_stamina / WALL_MAX_RUN_TIME
-	
+
 
 func _handle_viewmodel(delta):
 	ViewmodelCharacter.target_model_rotation = Head.rotation.y
@@ -316,12 +333,20 @@ func _movement_normal(delta):
 	target_viewmodel_action_y = 0.0
 	target_viewmodel_action_z = 0.0
 	
-	# Fall Damage
-	if last_fall_velocity < -RESISTANT_FALL_VELOCITY and is_on_floor(): ## Player Landed
-		var fall_dmg = round(pow(-last_fall_velocity, 1.3) / 5 )
-		if fall_dmg > FALL_DAMAGE_GRACE:
-			damage(fall_dmg)
-			print(fall_dmg)
+	# Landing
+	
+	if last_fall_velocity < 0.0 and is_on_floor(): ## Player Landed
+		
+		# set the viewmodel a bit down
+		jump_modify = LAND_VIEW_MODEL_HEIGHT
+		
+		# fall damage
+		if last_fall_velocity < -RESISTANT_FALL_VELOCITY:
+		
+			var fall_dmg = round(pow(-last_fall_velocity, 1.3) / 5 )
+			if fall_dmg > FALL_DAMAGE_GRACE:
+				damage(fall_dmg)
+				print(fall_dmg)
 		
 		last_fall_velocity = 0
 	
@@ -335,15 +360,14 @@ func _movement_normal(delta):
 
 		
 	# Handle sprint
-	speed = WALK_SPEED
-	if Vector2(velocity.x, velocity.z).length() > 1 and !is_crouching:
-		if Input.is_action_pressed("move_sprint") and is_on_floor(): # only tap sprint key to start, not hold it
-			is_sprinting = true
+	speed = SPRINT_SPEED
+	if Input.is_action_pressed("move_walk") and is_on_floor() and !is_crouching:
+		is_walking = true
 	else:
-		is_sprinting = false
+		is_walking = false
 		
-	if is_sprinting:
-		speed = SPRINT_SPEED
+	if is_walking:
+		speed = WALK_SPEED
 	
 	var head_level = HEAD_LEVEL
 	
@@ -372,10 +396,10 @@ func _movement_normal(delta):
 	# if not on slope, sprint and crouch to slide, else auto slide when crouching
 	if is_crouching and is_on_floor() and get_floor_angle(Vector3.UP) != 0 and velocity.length() >= SLIDE_MIN_SPEED:
 		movement = MOVEMENT.SLIDING
-		is_sprinting = false
-	elif is_crouching and is_sprinting:
+		is_walking = false
+	elif is_crouching and !is_walking:
 		movement = MOVEMENT.SLIDING
-		is_sprinting = false
+		is_walking = false
 		
 	# Position camera at head level
 	Head.transform.origin.y = lerp(Head.transform.origin.y, head_level, 10 * delta)
@@ -456,7 +480,7 @@ func _movement_normal(delta):
 	
 	# FOV 
 	var velocity_clamped = clamp(Vector2(velocity.x,velocity.z).length(), 0, WALK_SPEED) / (WALK_SPEED)
-	var target_fov = FOV_BASE + (FOV_CHANGE * velocity_clamped) + (FOV_SPRINT * float(is_sprinting))
+	var target_fov = FOV_BASE + (FOV_CHANGE * velocity_clamped) + (FOV_SPRINT * float(!is_walking))
 	Camera.fov = lerp(Camera.fov, target_fov, delta * FOV_CHANGE_SPEED)
 	
 	# View Sway
@@ -787,8 +811,8 @@ func _start_grappling(distance):
 	SfxGrapplingAttach.play()
 	SfxGrapplingHooking.play()
 	
-	# go directly to target when crouching
-	if Input.is_action_pressed("move_crouch"):
+	# go directly to target when holding jump
+	if Input.is_action_pressed("move_jump"):
 		var origin = global_transform.origin
 		var lowest_point = Vector3(origin.x, origin.y - 1, origin.z)
 		var grapple_point_relative_y = grapple_point.y - lowest_point.y
@@ -884,7 +908,7 @@ func _movement_grappling(delta):
 
 		if global_transform.origin.distance_to(original_grapple_point) > 1:
 			var y_accel = 0
-			if Input.is_action_pressed("move_jump"):
+			if !Input.is_action_pressed("move_jump"):
 				y_accel = GRAPPLE_PULL_UP
 			velocity = velocity.lerp((global_transform.origin.direction_to(grapple_point+Vector3(0, grapple_overshoot_y, 0)) * (global_transform.origin.distance_to(grapple_point) / grapple_distance) * GRAPPLE_STRENGTH) + (direction+Vector3(0, y_accel, 0)) * (GRAPPLE_ACCEL * (grappling_time/GRAPPLE_TIME)), GRAPPLE_SPEED * ((GRAPPLE_TIME-grappling_time)/GRAPPLE_TIME) * delta )
 		else:
@@ -1018,4 +1042,14 @@ func damage(damage: float = 0.0, knockback: Vector3 = Vector3(0, 0, 0)) -> void:
 	_stop_grappling()
 	movement = MOVEMENT.NORMAL
 	velocity += knockback
-	shake_time = SHAKE_MAX_TIME
+	apply_shake(0.5, 0.2, 3.0)
+
+func apply_shake(time: float = 0.5, intensity: float = 0.1, speed: float = 1.0) -> void:
+	if time >= shake_time:
+		shake_max_time = time
+		shake_time = time
+		shake_speed = speed
+		shake_intensity = intensity
+
+func on_weapon_manager_update_ammo(current_ammo, reserve_ammo):
+	AmmoLabel.text = "Ammo: " + str(current_ammo) + " / " + str(reserve_ammo)

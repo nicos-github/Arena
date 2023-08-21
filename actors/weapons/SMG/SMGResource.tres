@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=6 format=3 uid="uid://bclh5yqb2yyrf"]
+
+[ext_resource type="AudioStream" uid="uid://cdahh3g04hlau" path="res://sfx/weapons/smg/smg_reload.wav" id="1_37wop"]
+[ext_resource type="Script" path="res://actors/weapons/WeaponResource.gd" id="1_epywb"]
+[ext_resource type="PackedScene" uid="uid://dm65r6gqjf2sb" path="res://actors/weapons/SMG/SMGProjectile.tscn" id="1_ge26b"]
+[ext_resource type="AudioStream" uid="uid://b2vmjmuhmg1oa" path="res://sfx/weapons/weapon_empty.wav" id="1_uj8wh"]
+[ext_resource type="AudioStream" uid="uid://d2sml5mpruy2i" path="res://sfx/weapons/smg/smg_shoot.wav" id="2_62f2k"]
+
+[resource]
+script = ExtResource("1_epywb")
+WeaponName = "SMG"
+ActivateAnimation = "SMG_Activate"
+DeactivateAnimation = "SMG_Deactivate"
+ShootAnimation = "SMG_Shoot"
+ReloadAnimation = "SMG_Reload"
+OutOfAmmoAnimation = "SMG_OOA"
+ShootSound = ExtResource("2_62f2k")
+ReloadSound = ExtResource("1_37wop")
+EmptySound = ExtResource("1_uj8wh")
+CurrentAmmo = 18
+MagazineSize = 18
+ReserveAmmo = 54
+MaxAmmo = 90
+ActionType = 3
+ProjectileType = ExtResource("1_ge26b")
+ProjectileAmount = 1
+RecoilStrength = 2.0
+RecoilMaxValue = 20.0
+RecoilReset = 5.0
+RecoilPushBack = 0.5
+RecoilPushUp = 0.1
