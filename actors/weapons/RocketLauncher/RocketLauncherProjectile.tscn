@@ -1,0 +1,122 @@
+[gd_scene load_steps=13 format=3 uid="uid://blwngnowsyeau"]
+
+[ext_resource type="Script" path="res://actors/projectiles/projectile.gd" id="1_6an4y"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_py4uo"]
+radial_segments = 16
+rings = 8
+
+[sub_resource type="Curve" id="Curve_hu85s"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.9371, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_w4ir7"]
+curve = SubResource("Curve_hu85s")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ajfjs"]
+direction = Vector3(0, 0, 1)
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 1.0
+initial_velocity_max = 1.0
+angle_min = -720.0
+angle_max = 720.0
+scale_min = 0.2
+scale_curve = SubResource("CurveTexture_w4ir7")
+turbulence_noise_speed = Vector3(0, 0, 1)
+attractor_interaction_enabled = false
+collision_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2uy7r"]
+blend_mode = 1
+albedo_color = Color(0.929412, 0.815686, 0, 1)
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_yq7pu"]
+material = SubResource("StandardMaterial3D_2uy7r")
+size = Vector2(0.1, 0.1)
+
+[sub_resource type="Curve" id="Curve_xsoid"]
+_data = [Vector2(0, 0.336842), 0.0, 5.02613, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_nqkvk"]
+curve = SubResource("Curve_xsoid")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_aymhk"]
+emission_shape = 1
+emission_sphere_radius = 0.1
+direction = Vector3(1, 1, 1)
+spread = 180.0
+gravity = Vector3(0, -20, 0)
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0
+linear_accel_min = -4.0
+linear_accel_max = -4.0
+scale_min = 0.01
+scale_max = 0.2
+scale_curve = SubResource("CurveTexture_nqkvk")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nosex"]
+blend_mode = 1
+emission_enabled = true
+emission = Color(0.47451, 0.47451, 0.47451, 1)
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_4ml2u"]
+material = SubResource("StandardMaterial3D_nosex")
+
+[node name="RocketLauncherProjectile" type="Node3D" node_paths=PackedStringArray("ProjectileNode", "ProjectileRay", "TrailNode", "TrailParticle", "HitParticle")]
+script = ExtResource("1_6an4y")
+PROJECTILE_SPEED = 40.0
+TRAIL_SPEED = 0.3
+DAMAGE = 50.0
+DAMAGE_DROPOFF = 5.0
+MAXIMUM_LIFETIME = 4.0
+IS_EXPLOSIVE = true
+EXPLOSIVE_FORCE = 10.0
+EXPLOSIVE_SIZE = 15.0
+EXPLOSIVE_DAMAGE = 50.0
+ProjectileNode = NodePath("ProjectileNode")
+ProjectileRay = NodePath("ProjectileRay")
+TrailNode = NodePath("Trail")
+TrailParticle = NodePath("Trail/TrailParticle")
+HitParticle = NodePath("Trail/HitParticle")
+
+[node name="ProjectileNode" type="Node3D" parent="."]
+
+[node name="ProjectileMesh" type="MeshInstance3D" parent="ProjectileNode"]
+transform = Transform3D(0.1, 0, 0, 0, -2.62268e-08, -0.1, 0, 0.6, -4.37114e-09, 0, 0, 0)
+mesh = SubResource("SphereMesh_py4uo")
+
+[node name="ProjectileRay" type="RayCast3D" parent="."]
+enabled = false
+target_position = Vector3(0, 0, 1)
+collision_mask = 9
+debug_shape_custom_color = Color(1, 0, 0, 1)
+
+[node name="Trail" type="Node3D" parent="."]
+
+[node name="TrailParticle" type="GPUParticles3D" parent="Trail"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0198477, 0)
+amount = 64
+lifetime = 0.5
+visibility_aabb = AABB(-800, -800, -800, 1600, 1600, 1600)
+trail_lifetime = 0.2
+process_material = SubResource("ParticleProcessMaterial_ajfjs")
+draw_pass_1 = SubResource("QuadMesh_yq7pu")
+
+[node name="HitParticle" type="GPUParticles3D" parent="Trail"]
+emitting = false
+amount = 16
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+process_material = SubResource("ParticleProcessMaterial_aymhk")
+draw_pass_1 = SubResource("QuadMesh_4ml2u")

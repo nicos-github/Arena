@@ -7,7 +7,7 @@ extends CharacterBody3D
 
 const HEAD_LEVEL = 0.6
 const SENSITIVITY = 1
-const FALL_DAMAGE_GRACE = 15
+const FALL_DAMAGE_GRACE = 5
 
 var speed = 0
 const WALK_SPEED = 5.5
@@ -27,8 +27,6 @@ const AIR_ACCELERATION = 25.0
 const AIR_DRAG = 1.0
 
 const JUMP_VELOCITY = 6.5
-
-const RESISTANT_FALL_VELOCITY = 12 # over this velocity fall damage is applied
 
 const GRAVITY = 19.62
 
@@ -110,7 +108,7 @@ const SLIDING_ACCEL = 8
 const SLIDING_DRAG = 3
 const SLIDE_FOV_CHANGE = 10
 const SLIDE_MIN_SPEED = CROUCH_SPEED - 0.1 # under this speed sliding will stop
-
+const SLIDE_VIEW_ROLL = -3
 
 # Viewmodel Action Transforms
 const VIEWMODEL_ACTION_RESET := 5.0
@@ -173,6 +171,7 @@ const GRAPPLING_VIEW_ROLL_SPEED = 5.0
 
 # Ambient Audio
 @onready var SfxWaterSwimming = $Audio/Ambient/SfxWaterSwimming
+@onready var SfxWaterSplash = $Audio/Ambient/SfxWaterSplash
 
 # AudioBusses
 var AudioWaterBus = AudioServer.get_bus_index("Water")
@@ -216,6 +215,9 @@ func _ready():
 	
 	# weapon manager ammo signal
 	WeaponManager.connect("update_ammo", on_weapon_manager_update_ammo)
+	
+	# Weapon Manager set player rid for bullets and projectiles
+	WeaponManager.player_rid = self.get_rid()
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
@@ -341,12 +343,10 @@ func _movement_normal(delta):
 		jump_modify = LAND_VIEW_MODEL_HEIGHT
 		
 		# fall damage
-		if last_fall_velocity < -RESISTANT_FALL_VELOCITY:
-		
-			var fall_dmg = round(pow(-last_fall_velocity, 1.3) / 5 )
-			if fall_dmg > FALL_DAMAGE_GRACE:
-				damage(fall_dmg)
-				print(fall_dmg)
+		var fall_dmg = round(pow(-last_fall_velocity, 1.3) / 5 )
+		if fall_dmg > FALL_DAMAGE_GRACE:
+			damage(fall_dmg)
+			print(fall_dmg)
 		
 		last_fall_velocity = 0
 	
@@ -371,6 +371,15 @@ func _movement_normal(delta):
 	
 	var head_level = HEAD_LEVEL
 	
+	# Sliding
+	# if not on slope, sprint and crouch to slide, else auto slide when crouching
+	if is_crouching and is_on_floor() and get_floor_angle(Vector3.UP) != 0 and velocity.length() >= SLIDE_MIN_SPEED:
+		movement = MOVEMENT.SLIDING
+		is_walking = false
+	elif !is_crouching and !is_walking and velocity.length() >= CROUCH_SPEED and Input.is_action_pressed("move_crouch"):
+		movement = MOVEMENT.SLIDING
+		is_walking = false
+	
 	# Handle crouch
 	if is_crouching:
 		speed = CROUCH_SPEED
@@ -392,14 +401,7 @@ func _movement_normal(delta):
 			is_crouching = false
 	
 	
-	# Sliding
-	# if not on slope, sprint and crouch to slide, else auto slide when crouching
-	if is_crouching and is_on_floor() and get_floor_angle(Vector3.UP) != 0 and velocity.length() >= SLIDE_MIN_SPEED:
-		movement = MOVEMENT.SLIDING
-		is_walking = false
-	elif is_crouching and !is_walking:
-		movement = MOVEMENT.SLIDING
-		is_walking = false
+	
 		
 	# Position camera at head level
 	Head.transform.origin.y = lerp(Head.transform.origin.y, head_level, 10 * delta)
@@ -531,8 +533,17 @@ func _movement_swimming(delta):
 	move_and_slide()
 	
 	# water effect UI when under entry point
-	Effect_Underwater.visible = global_transform.origin.y < water_entry_point.y - HEAD_LEVEL - 0.8
-
+	if global_transform.origin.y < water_entry_point.y - HEAD_LEVEL - 0.8:
+		Effect_Underwater.visible = true
+		# water sound
+		AudioServer.set_bus_bypass_effects(AudioWaterBus, false)
+		SfxWaterSwimming.play()
+	else:
+		Effect_Underwater.visible = false
+		# water sound
+		AudioServer.set_bus_bypass_effects(AudioWaterBus, true)
+		SfxWaterSwimming.stop()
+	
 func _movement_ladder():
 
 	# Get the input direction and handle the movement/deceleration.
@@ -544,10 +555,11 @@ func _movement_ladder():
 	velocity.z = 0
 	
 	if direction:
-		velocity.y = -direction.z * LADDER_SPEED
 		
 		if is_on_floor():
-			velocity.z = direction.z * LADDER_SPEED
+			velocity = direction * LADDER_SPEED
+			
+		velocity.y = -input_dir.y * LADDER_SPEED
 	else:
 		velocity.y = 0.0
 		
@@ -739,8 +751,8 @@ func _movement_sliding(delta):
 	var target_fov = FOV_BASE + SLIDE_FOV_CHANGE
 	Camera.fov = lerp(Camera.fov, target_fov, delta * FOV_CHANGE_SPEED)
 	
-	# View Sway
-	var view_sway = deg_to_rad(-1)
+	# View ROLL
+	var view_sway = deg_to_rad(SLIDE_VIEW_ROLL)
 	Head.rotation.z = lerp(Head.rotation.z, view_sway, delta * VIEW_SWAY_SPEED)
 
 func _check_grappling(delta):
@@ -1005,20 +1017,19 @@ func _enter_water(node):
 		movement = MOVEMENT.SWIMMING
 		water_entry_point = global_transform.origin
 		is_swimming = true
+		SfxWaterSplash.pitch_scale = 1.2
+		SfxWaterSplash.play()
 		
-		# water sound
-		AudioServer.set_bus_bypass_effects(AudioWaterBus, false)
-		SfxWaterSwimming.play()
+		
 
 func _exit_water(node):
 	if node == self: # only react to player entering
 		movement = MOVEMENT.NORMAL
 		velocity.y = WATER_EXIT_VELOCITY
 		is_swimming = false
-		
-		# water sound
-		AudioServer.set_bus_bypass_effects(AudioWaterBus, true)
-		SfxWaterSwimming.stop()
+		SfxWaterSplash.pitch_scale = 0.9
+		SfxWaterSplash.play()
+
 
 # Ladders
 
@@ -1042,7 +1053,7 @@ func damage(damage: float = 0.0, knockback: Vector3 = Vector3(0, 0, 0)) -> void:
 	_stop_grappling()
 	movement = MOVEMENT.NORMAL
 	velocity += knockback
-	apply_shake(0.5, 0.2, 3.0)
+	apply_shake(min(0.5 * damage / 10, 1.0), 0.2 * damage / 100, 3.0)
 
 func apply_shake(time: float = 0.5, intensity: float = 0.1, speed: float = 1.0) -> void:
 	if time >= shake_time:

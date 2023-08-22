@@ -9,6 +9,6 @@ size = Vector3(0.08, 0.08, 0.08)
 texture_albedo = ExtResource("1_p6k47")
 texture_normal = ExtResource("2_6nxgr")
 distance_fade_enabled = true
-distance_fade_begin = 15.0
+distance_fade_begin = 25.0
 distance_fade_length = 5.0
 cull_mask = 1048573

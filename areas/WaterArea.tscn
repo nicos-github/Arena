@@ -1,0 +1,80 @@
+[gd_scene load_steps=14 format=3 uid="uid://bmt1rq78u0u5b"]
+
+[ext_resource type="Shader" path="res://maps/water_shader.gdshader" id="1_vj3l8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_evvuh"]
+size = Vector3(6, 10.9956, 4)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_hcd05"]
+subdivide_width = 16
+subdivide_depth = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e2ipf"]
+transparency = 1
+cull_mode = 1
+albedo_color = Color(0, 0.533333, 1, 0.65098)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_6702t"]
+seed = 5
+frequency = 0.0565
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_54dj2"]
+noise = SubResource("FastNoiseLite_6702t")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_3ciss"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uqao5"]
+seamless = true
+as_normal_map = true
+noise = SubResource("FastNoiseLite_3ciss")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_eq0gw"]
+noise_type = 3
+seed = 4
+frequency = 0.0488
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_g58sn"]
+seamless = true
+as_normal_map = true
+noise = SubResource("FastNoiseLite_eq0gw")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_grkns"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_m2ex8"]
+noise = SubResource("FastNoiseLite_grkns")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2o2u7"]
+render_priority = 0
+next_pass = SubResource("StandardMaterial3D_e2ipf")
+shader = ExtResource("1_vj3l8")
+shader_parameter/depth_fade_distance = 2.0
+shader_parameter/absorbance = 1.0
+shader_parameter/shallow_color = Color(0.282353, 0.521569, 0.866667, 1)
+shader_parameter/deep_color = Color(0.176471, 0.282353, 0.368627, 1)
+shader_parameter/foam_amount = 0.361
+shader_parameter/foam_color = Color(0.713726, 0.772549, 1, 1)
+shader_parameter/roughness = 0.1
+shader_parameter/wave_scale = 1.0
+shader_parameter/height_scale = 0.03
+shader_parameter/wave_dir1 = Vector2(1, 0)
+shader_parameter/wave_dir2 = Vector2(0, 1)
+shader_parameter/wave_speed = 0.015
+shader_parameter/foam_noise = SubResource("NoiseTexture2D_54dj2")
+shader_parameter/wave_texture = SubResource("NoiseTexture2D_m2ex8")
+shader_parameter/normal1 = SubResource("NoiseTexture2D_uqao5")
+shader_parameter/normal2 = SubResource("NoiseTexture2D_g58sn")
+
+[node name="WaterArea" type="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+collision_layer = 129
+collision_mask = 137
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.385311, 0)
+shape = SubResource("BoxShape3D_evvuh")
+
+[node name="WaterPlane" type="MeshInstance3D" parent="."]
+transform = Transform3D(3.049, 0, 0, 0, 5.465, 0, 0, 0, 2.067, 0, 4.81921, 0)
+mesh = SubResource("PlaneMesh_hcd05")
+surface_material_override/0 = SubResource("ShaderMaterial_2o2u7")

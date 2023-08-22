@@ -28,6 +28,8 @@ enum ActionTypes {
 @export var ProjectileType : PackedScene
 @export var ProjectileAmount: int = 1
 
+@export var RecoilSprayX: float = 1.0
+@export var RecoilSprayY: float = 0.5
 @export var RecoilStrength : float = 1.0
 @export var RecoilMaxValue : float = 10.0
 @export var RecoilReset : float = 10.0

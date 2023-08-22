@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3 uid="uid://cikkwgajbra35"]
+[gd_scene load_steps=53 format=3 uid="uid://cikkwgajbra35"]
 
 [ext_resource type="Script" path="res://actors/character/Character.gd" id="1_gxiqw"]
 [ext_resource type="Script" path="res://actors/character/viewmodel/Viewmodel.gd" id="2_v7472"]
@@ -16,6 +16,7 @@
 [ext_resource type="AudioStream" uid="uid://bk732yk2th0tk" path="res://sfx/actors/player/grappling_hooking.wav" id="12_vfscp"]
 [ext_resource type="AudioStream" uid="uid://ceuik37jxwkys" path="res://sfx/actors/player/grappling_retrieve_fast.wav" id="13_dxtoq"]
 [ext_resource type="AudioStream" uid="uid://ccilg1qfy4emn" path="res://sfx/actors/player/water.wav" id="14_mdbee"]
+[ext_resource type="AudioStream" uid="uid://co5iuetpcqsb" path="res://sfx/actors/player/water_splash.wav" id="17_a8hxh"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_88ni7"]
 animation = &"Crouch"
@@ -874,6 +875,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Information" type="VBoxContainer" parent="UserInterface"]
+visible = false
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -995,28 +997,34 @@ horizontal_alignment = 1
 
 [node name="SfxJump" type="AudioStreamPlayer" parent="Audio/Jump"]
 stream = ExtResource("8_5igk0")
+volume_db = -5.0
 bus = &"Sounds"
 
 [node name="SfxDoubleJump" type="AudioStreamPlayer" parent="Audio/Jump"]
 stream = ExtResource("9_4q1r5")
+volume_db = -5.0
 bus = &"Sounds"
 
 [node name="Grappling" type="Node" parent="Audio"]
 
 [node name="SfxGrapplingThrow" type="AudioStreamPlayer" parent="Audio/Grappling"]
 stream = ExtResource("10_m6fan")
+volume_db = -5.0
 bus = &"Sounds"
 
 [node name="SfxGrapplingAttach" type="AudioStreamPlayer" parent="Audio/Grappling"]
 stream = ExtResource("11_eoga3")
+volume_db = -5.0
 bus = &"Sounds"
 
 [node name="SfxGrapplingHooking" type="AudioStreamPlayer" parent="Audio/Grappling"]
 stream = ExtResource("12_vfscp")
+volume_db = -5.0
 bus = &"Sounds"
 
 [node name="SfxGrapplingRetrieve" type="AudioStreamPlayer" parent="Audio/Grappling"]
 stream = ExtResource("13_dxtoq")
+volume_db = -5.0
 bus = &"Sounds"
 
 [node name="Ambient" type="Node" parent="Audio"]
@@ -1024,6 +1032,11 @@ bus = &"Sounds"
 [node name="SfxWaterSwimming" type="AudioStreamPlayer" parent="Audio/Ambient"]
 stream = ExtResource("14_mdbee")
 pitch_scale = 0.5
+bus = &"Sounds"
+
+[node name="SfxWaterSplash" type="AudioStreamPlayer" parent="Audio/Ambient"]
+stream = ExtResource("17_a8hxh")
+pitch_scale = 1.2
 bus = &"Sounds"
 
 [editable path="Viewmodel/MDL_Character"]

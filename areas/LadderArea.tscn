@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://boh10jwk0x7hu"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e0clm"]
+size = Vector3(1.23611, 11.2961, 0.234768)
+
+[node name="LadderArea" type="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.327299)
+collision_layer = 65
+collision_mask = 73
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0359211, -0.263937, -0.0816541)
+shape = SubResource("BoxShape3D_e0clm")

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://da7xb1yjjibxc"]
+
+[ext_resource type="PackedScene" uid="uid://byovstxm3qtjc" path="res://assets/weapons/sword/sci-fi_sword.glb" id="1_81v5e"]
+
+[node name="sci-fi_sword" instance=ExtResource("1_81v5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.4)

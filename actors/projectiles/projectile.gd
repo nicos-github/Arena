@@ -79,8 +79,14 @@ func shoot(_origin := Vector3(), _destination := Vector3()) -> void:
 	ProjectileNode.look_at_from_position(_origin, _destination)
 	destination = _destination
 	direction = _origin.direction_to(_destination)
-	is_active = true
 	
+	
+	
+	if IS_HITSCAN:
+		PROJECTILE_SPEED = 5000
+	
+	is_active = true
+	'''
 	# Trail
 	TrailParticle.lifetime = MAXIMUM_LIFETIME
 	TrailParticle.process_material.gravity = Vector3(0, -GRAVITY, 0) if HAS_GRAVITY else Vector3()
@@ -92,9 +98,15 @@ func shoot(_origin := Vector3(), _destination := Vector3()) -> void:
 	TrailParticle.amount = 4
 	TrailParticle.explosiveness = 1.0
 	TrailParticle.restart()
+	'''
+	TrailParticle.emitting = true
+	
 	
 	
 func _physics_process(delta):
+	
+	# move trail to projectile
+	TrailParticle.global_transform = ProjectileNode.global_transform
 	
 	# Destroy projectile after maximum lifetime
 	lifetime += delta
@@ -161,14 +173,15 @@ func hit() -> void:
 	ProjectileNode.visible = false
 	
 	# hit particles
-	TrailParticle.visible = false
+	TrailParticle.emitting = false
 	HitParticle.global_transform.origin = collision_point
 	HitParticle.restart()
 	
 	# Play Hit Sound
 	# Calculate Damage Falloff [percentage per 10 meter of flight path]
-	var distance = global_transform.origin.distance_to(creation_origin)
-	var damage_dropoff = DAMAGE * (DAMAGE_DROPOFF * (distance / 10))
+	var distance = ProjectileNode.global_transform.origin.distance_to(creation_origin)
+	var damage_dropoff = DAMAGE - (DAMAGE_DROPOFF * (distance / 10))
+	print("distance " + str(distance))
 	print("DAMAGE " + str(damage_dropoff))
 	
 	# Create Bullet Hole
@@ -177,6 +190,11 @@ func hit() -> void:
 	bulletScn.global_transform.origin = collision_point
 	bulletScn.look_at(collision_normal, collision_point.direction_to(creation_origin))
 	bulletScn.rotate(collision_normal, randf() * TAU)
+	
+	# scale bullet hole when explosive
+	if IS_EXPLOSIVE:
+		bulletScn.scale = Vector3(EXPLOSIVE_SIZE / 2.0, EXPLOSIVE_SIZE / 2.0, EXPLOSIVE_SIZE / 2.0)
+	
 	# destroy bullet hole after 60 ingame seconds
 	get_tree().create_timer(60.0, false, true, false).timeout.connect(bulletScn.queue_free)
 	

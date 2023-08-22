@@ -1,3 +1,6 @@
+res://areas
+res://assets/weapons/rocketlauncher
+res://assets/weapons/sword
 res://actors/weapons/Shotgun
 res://assets/weapons/smg
 res://assets/weapons/shotgun
@@ -10,4 +13,3 @@ res://maps
 D:/GitHub/Arena/movies
 res://scripts
 res://
-res://areas

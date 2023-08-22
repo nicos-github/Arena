@@ -94,6 +94,7 @@ debug_shape_custom_color = Color(1, 0, 0, 1)
 
 [node name="TrailParticle" type="GPUParticles3D" parent="Trail"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0198477, 0)
+visible = false
 lifetime = 3.0
 visibility_aabb = AABB(-800, -800, -800, 1600, 1600, 1600)
 trail_enabled = true

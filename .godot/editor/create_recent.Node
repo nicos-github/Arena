@@ -1,5 +1,8 @@
-RayCast3D
+CSGBox3D
+Node
 Marker3D
+SkeletonIK3D
+RayCast3D
 Label
 HBoxContainer
 VBoxContainer
@@ -23,10 +26,8 @@ GPUParticles3D
 GPUParticlesCollisionBox3D
 MultiMeshInstance3D
 CharacterBody3D
-Node
 Area3D
 AudioStreamPlayer3D
 TextureRect
-SkeletonIK3D
 RigidBody3D
 AnimatableBody3D

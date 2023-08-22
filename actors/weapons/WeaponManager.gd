@@ -5,6 +5,7 @@ extends Node3D
 @onready var Audio = $FPSRig/Audio
 @onready var BulletPoint = $FPSRig/BulletPoint
 @onready var BulletCast = $FPSRig/BulletCast
+@onready var Camera = $"../.."
 
 var CurrentWeapon : WeaponResource
 var WeaponStack := [] # array of current available weapons ( inventory )
@@ -21,6 +22,8 @@ var recoil := 0.0
 var projectiles_shot := 0
 var rng = RandomNumberGenerator.new()
 
+var player_rid := RID()
+
 func _ready():
 	# hide all children of the rig
 	for weapon in FPSRig.get_children():
@@ -28,6 +31,10 @@ func _ready():
 			weapon.visible = false
 	
 	initialize(StartWeapons) # enter weapon state machine
+	
+	# process IK
+	$FPSRig/Arms/Skeleton3D/LeftHandIK.start()
+	$FPSRig/Arms/Skeleton3D/RightHandIK.start()
 	
 
 func _input(event):
@@ -101,15 +108,16 @@ func shoot() -> void:
 			Audio.play()
 			updateAmmo()
 			
+				
+			# recoil
+			recoil = clamp(recoil + CurrentWeapon.RecoilStrength, 0.0, CurrentWeapon.RecoilMaxValue)
+			
 			
 			# allow multiple projectiles to be shot
 			for bullet in CurrentWeapon.ProjectileAmount:
 				# launch projectile
 				launchProjectile()
 				projectiles_shot += 1
-				
-			# recoil (after shot!)
-			recoil = clamp(recoil + CurrentWeapon.RecoilStrength, 0.0, CurrentWeapon.RecoilMaxValue)
 			
 			
 		else:
@@ -143,34 +151,49 @@ func _physics_process(delta):
 	
 	if CurrentWeapon == null:
 		return
-		
+	
+	
+	
 	# process recoil
 	var recoilValue = recoil / CurrentWeapon.RecoilMaxValue
 	FPSRig.transform.origin = Vector3(0, CurrentWeapon.RecoilPushUp * recoilValue, CurrentWeapon.RecoilPushBack * recoilValue)
 	
 	# reset recoil
-	recoil = lerp(recoil, 0.0, delta * CurrentWeapon.RecoilReset)
+	if !AnimPlayer.current_animation == CurrentWeapon.ShootAnimation:
+		recoil = lerp(recoil, 0.0, delta * CurrentWeapon.RecoilReset)
 	
 func launchProjectile() -> void:
 	var projectile = CurrentWeapon.ProjectileType.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 	get_tree().root.add_child(projectile)
-	var gun_origin = BulletPoint.global_transform.origin
-	var gun_end = gun_origin - BulletPoint.global_transform.basis.z
-	
+	projectile.ignore(player_rid)
+	var gun_origin = Camera.global_transform.origin
+	var gun_end = gun_origin - Camera.global_transform.basis.z
+
 	BulletCast.force_raycast_update()
+	BulletCast.add_exception_rid(player_rid)
 	if BulletCast.is_colliding():
 		gun_end = gun_origin + gun_origin.direction_to(BulletCast.get_collision_point())
-	
+
 	# calculate spray
 	if CurrentWeapon.ProjectileAmount == 1:
-		gun_end.y += recoil / CurrentWeapon.RecoilMaxValue
+		print(recoil)
+		var spray_size_x = deg_to_rad(CurrentWeapon.RecoilSprayX)
+		var spray_size_y = deg_to_rad(CurrentWeapon.RecoilSprayY)
+		rng.seed = hash(recoil)
+		var new_gun_dir = gun_origin.direction_to(BulletCast.get_collision_point()).rotated(Camera.global_transform.basis.y, rng.randfn(0.0, spray_size_x))
+		new_gun_dir.y += (recoil / CurrentWeapon.RecoilMaxValue) * spray_size_y
+		gun_end = gun_origin + new_gun_dir
+
+		
 	else:
 		# random pattern for multi projectile weapons
-		var spray_size = deg_to_rad(5)
-		rng.seed = recoil + projectiles_shot
-		var new_gun_dir = gun_origin.direction_to(BulletCast.get_collision_point()).rotated(Vector3.UP, rng.randf_range(-spray_size, spray_size))
-		rng.seed = recoil + projectiles_shot + 1
-		new_gun_dir.y += rng.randf_range(-spray_size, spray_size)
+		var spray_size_x = deg_to_rad(CurrentWeapon.RecoilSprayX)
+		var spray_size_y = deg_to_rad(CurrentWeapon.RecoilSprayY)
+		rng.seed = hash(recoil + projectiles_shot)
+		var new_gun_dir = gun_origin.direction_to(BulletCast.get_collision_point()).rotated(Camera.global_transform.basis.y, rng.randfn(0.0, spray_size_x))
+		rng.seed = hash(recoil + projectiles_shot + 1)
+		new_gun_dir.y += rng.randfn(0.0, spray_size_y)
 		gun_end = gun_origin + new_gun_dir
+
 	
 	projectile.shoot(gun_origin, gun_end)

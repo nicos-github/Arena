@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=6 format=3 uid="uid://bwohk6h1oadnm"]
+
+[ext_resource type="AudioStream" uid="uid://b2vmjmuhmg1oa" path="res://sfx/weapons/weapon_empty.wav" id="1_72wde"]
+[ext_resource type="PackedScene" uid="uid://blwngnowsyeau" path="res://actors/weapons/RocketLauncher/RocketLauncherProjectile.tscn" id="2_s3w5x"]
+[ext_resource type="AudioStream" uid="uid://dysq2we5ku2tx" path="res://sfx/weapons/shotgun/shotgun_reload.wav" id="3_18sb1"]
+[ext_resource type="AudioStream" uid="uid://bf0q2m5kpnkkt" path="res://sfx/weapons/rocketlauncher/rocketlauncher_shoot.wav" id="4_vorwg"]
+[ext_resource type="Script" path="res://actors/weapons/WeaponResource.gd" id="5_uwwpt"]
+
+[resource]
+script = ExtResource("5_uwwpt")
+WeaponName = "RocketLauncher"
+ActivateAnimation = "RocketLauncher_Activate"
+DeactivateAnimation = "RocketLauncher_Deactivate"
+ShootAnimation = "RocketLauncher_Shoot"
+ReloadAnimation = "RocketLauncher_Reload"
+OutOfAmmoAnimation = "RocketLauncher_OOA"
+ShootSound = ExtResource("4_vorwg")
+ReloadSound = ExtResource("3_18sb1")
+EmptySound = ExtResource("1_72wde")
+CurrentAmmo = 3
+MagazineSize = 3
+ReserveAmmo = 6
+MaxAmmo = 9
+ActionType = 0
+ProjectileType = ExtResource("2_s3w5x")
+ProjectileAmount = 1
+RecoilStrength = 1.0
+RecoilMaxValue = 10.0
+RecoilReset = 10.0
+RecoilPushBack = 0.5
+RecoilPushUp = 0.1
