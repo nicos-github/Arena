@@ -7,7 +7,7 @@ extends CharacterBody3D
 
 const HEAD_LEVEL = 0.6
 const SENSITIVITY = 1
-const FALL_DAMAGE_GRACE = 5
+const FALL_DAMAGE_GRACE = 15
 
 var speed = 0
 const WALK_SPEED = 5.5
@@ -186,6 +186,9 @@ var AudioWaterBus = AudioServer.get_bus_index("Water")
 
 # explosion
 @onready var ExplosionScn = preload("res://effects/explosions/explosion1.tscn")
+
+# UI Effects
+@onready var UIEffectsPlayer = $UserInterface/UIEffectsPlayer
 
 enum MOVEMENT {
 	NORMAL,
@@ -1054,6 +1057,7 @@ func damage(damage: float = 0.0, knockback: Vector3 = Vector3(0, 0, 0)) -> void:
 	movement = MOVEMENT.NORMAL
 	velocity += knockback
 	apply_shake(min(0.5 * damage / 10, 1.0), 0.2 * damage / 100, 3.0)
+	UIEffectsPlayer.play("UI_Effect_Damage", 0, 1.0 / min(0.5 * damage / 10, 1.0), false)
 
 func apply_shake(time: float = 0.5, intensity: float = 0.1, speed: float = 1.0) -> void:
 	if time >= shake_time:

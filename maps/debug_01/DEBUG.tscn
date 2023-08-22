@@ -1,7 +1,7 @@
 [gd_scene load_steps=25 format=3 uid="uid://0stdadlf4gbx"]
 
 [ext_resource type="MeshLibrary" uid="uid://brlynjtv25x6h" path="res://assets/prototype/Prototype.meshlib" id="1_syboo"]
-[ext_resource type="PackedScene" uid="uid://cikkwgajbra35" path="res://actors/character/Character.tscn" id="2_y61xl"]
+[ext_resource type="PackedScene" uid="uid://dsokpm17nsscw" path="res://actors/character/Character.tscn" id="2_y61xl"]
 [ext_resource type="Shader" path="res://maps/water_shader.gdshader" id="3_714c5"]
 
 [sub_resource type="Gradient" id="Gradient_lldkh"]

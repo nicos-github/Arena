@@ -1,3 +1,6 @@
+ColorRect
+AnimationPlayer
+TextureRect
 CSGBox3D
 Node
 Marker3D
@@ -7,7 +10,6 @@ Label
 HBoxContainer
 VBoxContainer
 AudioStreamPlayer
-AnimationPlayer
 Node3D
 BoneAttachment3D
 ProgressBar
@@ -28,6 +30,4 @@ MultiMeshInstance3D
 CharacterBody3D
 Area3D
 AudioStreamPlayer3D
-TextureRect
 RigidBody3D
-AnimatableBody3D
