@@ -38,7 +38,6 @@ volumetric_fog_albedo = Color(0.584314, 0.717647, 0.87451, 1)
 volumetric_fog_emission = Color(0.184314, 0.411765, 0.482353, 1)
 volumetric_fog_emission_energy = 0.2
 volumetric_fog_detail_spread = 2.21914
-adjustment_enabled = true
 adjustment_contrast = 1.1
 adjustment_color_correction = SubResource("GradientTexture1D_865y0")
 

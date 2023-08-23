@@ -18,6 +18,8 @@ class_name WeaponResource
 @export var ReserveAmmo: int	# Ammo that is not in the magazine
 @export var MaxAmmo: int		# Max ammo in reserve
 
+@export var isMelee: bool = false
+
 enum ActionTypes {
 	SINGLE_ACTION,
 	BOLT_ACTION,

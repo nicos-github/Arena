@@ -104,7 +104,14 @@ func _animation_finished(anim_name):
 func shoot() -> void:
 	if !AnimPlayer.is_playing(): # enforce fire rate and cant shoot when reloading
 		projectiles_shot = 0
-		if CurrentWeapon.CurrentAmmo > 0: # check if ammo is in magazine
+		
+		if CurrentWeapon.isMelee:
+			AnimPlayer.play(CurrentWeapon.ShootAnimation)
+			Audio.stream = CurrentWeapon.ShootSound
+			Audio.play()
+			launchMeleeProjectile()
+		
+		elif CurrentWeapon.CurrentAmmo > 0: # check if ammo is in magazine
 			CurrentWeapon.CurrentAmmo -= 1
 			
 			AnimPlayer.play(CurrentWeapon.ShootAnimation)
@@ -134,7 +141,7 @@ func shoot() -> void:
 	
 func reload() -> void:
 	# if magazine is full, dont reload
-	if CurrentWeapon.CurrentAmmo == CurrentWeapon.MagazineSize:
+	if CurrentWeapon.CurrentAmmo == CurrentWeapon.MagazineSize and !CurrentWeapon.isMelee:
 		return
 	elif !AnimPlayer.is_playing():
 		if CurrentWeapon.ReserveAmmo > 0:
@@ -206,3 +213,13 @@ func launchProjectile() -> void:
 
 	projectile.add_owner(player_reference)
 	projectile.shoot(gun_origin, gun_end)
+
+func launchMeleeProjectile():
+	var projectile = CurrentWeapon.ProjectileType.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
+	get_tree().root.add_child(projectile)
+	projectile.ignore(player_rid)
+	var gun_origin = Camera.global_transform.origin
+	var gun_end = gun_origin - Camera.global_transform.basis.z
+	projectile.add_owner(player_reference)
+	projectile.shoot(gun_origin, gun_end)
+	

@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://cv6ff3bnu7e70"]
+[gd_scene load_steps=43 format=3 uid="uid://cv6ff3bnu7e70"]
 
 [ext_resource type="Script" path="res://actors/weapons/WeaponManager.gd" id="1_tfjwg"]
 [ext_resource type="PackedScene" uid="uid://dnsuoqxtn2qr6" path="res://assets/weapons/shotgun/Shotgun.tscn" id="1_v1cnx"]
@@ -6,11 +6,13 @@
 [ext_resource type="Resource" uid="uid://dgji1jmblanue" path="res://actors/weapons/Shotgun/ShotgunResource.tres" id="2_fcx75"]
 [ext_resource type="Resource" uid="uid://bclh5yqb2yyrf" path="res://actors/weapons/SMG/SMGResource.tres" id="3_i3g67"]
 [ext_resource type="Resource" uid="uid://bwohk6h1oadnm" path="res://actors/weapons/RocketLauncher/RocketLauncherResource.tres" id="4_830ef"]
+[ext_resource type="Resource" uid="uid://b6b54sssf8w66" path="res://actors/weapons/Sword/SwordResource.tres" id="5_qu4tp"]
 [ext_resource type="Texture2D" uid="uid://c4ajrm36wft7h" path="res://assets/downloaded_arms/textures/arms_baseColor.png" id="6_487x3"]
 [ext_resource type="PackedScene" uid="uid://na7c7aux36ks" path="res://assets/weapons/rocketlauncher/RocketLauncher.tscn" id="6_lrt78"]
 [ext_resource type="Texture2D" uid="uid://dubvs3awkrmh1" path="res://assets/downloaded_arms/textures/arms_metallicRoughness.png" id="7_bk4aj"]
 [ext_resource type="Texture2D" uid="uid://d1nxvdhdfmh8f" path="res://effects/explosions/muzzleflash.png" id="8_i5ja4"]
 [ext_resource type="Texture2D" uid="uid://bbg3rqg7oau2t" path="res://assets/downloaded_arms/textures/arms_normal.png" id="8_sjxqs"]
+[ext_resource type="PackedScene" uid="uid://cikayw0o2bsgt" path="res://assets/weapons/sword/Sword.tscn" id="8_w2j7u"]
 
 [sub_resource type="Curve" id="Curve_x0a6k"]
 _data = [Vector2(0, 0.821053), 0.0, 1.16108, 0, 0, Vector2(1, 0.610526), -0.961593, 0.0, 0, 0]
@@ -145,6 +147,75 @@ tracks/8/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector3(0.15, -0.5, -0.215975)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Sword:position")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.330978, -0.443051, -0.989442)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Sword:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Sword:rotation:x")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.25826, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Sword:rotation:y")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.265136, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Sword:rotation:z")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-2.13323, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Arms:visible")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_ikubr"]
@@ -1060,6 +1131,360 @@ tracks/4/keys = {
 "values": [true, true]
 }
 
+[sub_resource type="Animation" id="Animation_3y26m"]
+resource_name = "Sword_Activate"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sword:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.330978, -1.06618, -0.596601), Vector3(0.330978, -0.443051, -0.780364), Vector3(0.158537, -0.324912, -0.753515), Vector3(0.158537, -0.324912, -0.753515)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sword:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, true]
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sword:rotation:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-0.529511, -0.25, 0, 0.2, -0.0547807, -0.25826, -0.2, 0.0756934, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sword:rotation:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-0.265136, -0.25, 0, 0.3, 0.812979, -1.55288, -0.3, -0.200072, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sword:rotation:z")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-2.13323, -0.25, 0, 0.25, 0, -2.13323, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5)
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Arms/Skeleton3D/RightHandIK:target_node")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../Sword/RightHand")]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Arms/Skeleton3D/LeftHandIK:target_node")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../LeftHand_unused")]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Arms:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_88vc5"]
+resource_name = "Sword_Attack"
+length = 0.8
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sword:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.3, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.158537, -0.324912, -0.753515), Vector3(0.604328, -0.324912, -1.17852), Vector3(1.08543, -0.249377, -1.37948), Vector3(0.158537, -0.324912, -0.753515)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sword:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sword:rotation:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-0.328649, -0.2, 0.0756934, 0.01, 0, -0.24781, -0.05, 0, 0.05, 0, -0.25826, -0.2, -0.453853, 0.25, 0),
+"times": PackedFloat32Array(0, 0.05, 0.8)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sword:rotation:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-1.55288, -0.3, -0.200072, 0.05, -0.0174696, -1.30298, -0.05, 0, 0.025, -0.194323, -2.88473, -0.1, 0.547455, 0.2, 0.12747, -1.55288, -0.1, 0.329475, 0.25, 0),
+"times": PackedFloat32Array(0, 0.1, 0.25, 0.8)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sword:rotation:z")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-2.13323, -0.25, 0, 0.1, -0.0214379, -2.13323, -0.05, 0, 0.05, 0, -2.13323, -0.2, 0.215945, 0.25, 0),
+"times": PackedFloat32Array(0, 0.2, 0.8)
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Arms/Skeleton3D/RightHandIK:target_node")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../Sword/RightHand")]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Arms/Skeleton3D/LeftHandIK:target_node")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../LeftHand_unused")]
+}
+
+[sub_resource type="Animation" id="Animation_hqa68"]
+resource_name = "Sword_Deactivate"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sword:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.158537, -0.324912, -0.753515), Vector3(0.330978, -1.06618, -0.162022)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sword:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.15, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, true, false]
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sword:rotation:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-0.25826, -0.2, 0.0756934, 0.1, 0.422638, -0.430645, -0.1, 0.0654758, 0.25, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sword:rotation:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-1.55288, -0.3, -0.200072, 0.1, 0.530338, 1.8078, -0.1, -1.07735, 0.25, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sword:rotation:z")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-2.13323, -0.25, 0, 0.1, -0.98923, 2.27733, -0.1, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Arms/Skeleton3D/RightHandIK:target_node")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../Sword/RightHand")]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Arms/Skeleton3D/LeftHandIK:target_node")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../LeftHand_unused")]
+}
+
+[sub_resource type="Animation" id="Animation_ii8ee"]
+resource_name = "Sword_Inspect"
+length = 1.6
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sword:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4, 1.1, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.158537, -0.324912, -0.753515), Vector3(0.286899, -0.324912, -1.05241), Vector3(0.23282, -0.324912, -0.926487), Vector3(0.158537, -0.324912, -0.753515)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sword:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sword:rotation:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-0.328649, -0.2, 0.0756934, 0.01, 0, -1.06807, -0.25, 0, 0.25, 0, 0.188927, -0.25, 0, 0.25, 0, -0.25826, -0.2, -0.453853, 0.25, 0),
+"times": PackedFloat32Array(0, 0.4, 1.1, 1.6)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sword:rotation:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-1.55288, -0.3, -0.200072, 0.05, -0.0174696, 1.53416, -0.25, 0, 0.25, 0, -2.64622, -0.25, 0, 0.25, 0, -1.55288, -0.1, 0.329475, 0.25, 0),
+"times": PackedFloat32Array(0, 0.4, 1.1, 1.6)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sword:rotation:z")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-2.13323, -0.25, 0, 0.1, -0.0214379, 2.6848, -0.25, 0, 0.25, 0, 3.08932, -0.25, 0, 0.25, 0, -2.13323, -0.2, 0.215945, 0.25, 0),
+"times": PackedFloat32Array(0, 0.4, 1.1, 1.6)
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Arms/Skeleton3D/RightHandIK:target_node")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../Sword/RightHand")]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Arms/Skeleton3D/LeftHandIK:target_node")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [NodePath("../../../LeftHand_unused")]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_uffrc"]
 _data = {
 "RESET": SubResource("Animation_no218"),
@@ -1077,7 +1502,11 @@ _data = {
 "Shotgun_Deactivate": SubResource("Animation_e75b3"),
 "Shotgun_OOA": SubResource("Animation_syk6s"),
 "Shotgun_Reload": SubResource("Animation_jkvjh"),
-"Shotgun_Shoot": SubResource("Animation_smwcu")
+"Shotgun_Shoot": SubResource("Animation_smwcu"),
+"Sword_Activate": SubResource("Animation_3y26m"),
+"Sword_Attack": SubResource("Animation_88vc5"),
+"Sword_Deactivate": SubResource("Animation_hqa68"),
+"Sword_Inspect": SubResource("Animation_ii8ee")
 }
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h6rl8"]
@@ -1274,8 +1703,8 @@ fov = 50.0
 [node name="WeaponManager" type="Node3D" parent="Pivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 script = ExtResource("1_tfjwg")
-WeaponResources = Array[Resource("res://actors/weapons/WeaponResource.gd")]([ExtResource("2_fcx75"), ExtResource("3_i3g67"), ExtResource("4_830ef")])
-StartWeapons = Array[String](["Shotgun", "SMG", "RocketLauncher"])
+WeaponResources = Array[Resource("res://actors/weapons/WeaponResource.gd")]([ExtResource("2_fcx75"), ExtResource("3_i3g67"), ExtResource("4_830ef"), ExtResource("5_qu4tp")])
+StartWeapons = Array[String](["Shotgun", "SMG", "RocketLauncher", "Sword"])
 
 [node name="FPSRig" type="Node3D" parent="Pivot/WeaponManager"]
 
@@ -1289,7 +1718,7 @@ transform = Transform3D(-0.60984, -0.662475, 0.434996, -0.735731, 0.677274, -1.9
 transform = Transform3D(-0.272414, 0.955301, -0.114852, 0.958171, 0.258454, -0.122922, -0.0877434, -0.143533, -0.985748, -0.0498576, 0.0598656, -0.0914685)
 
 [node name="SMG" parent="Pivot/WeaponManager/FPSRig" instance=ExtResource("2_0sf6n")]
-transform = Transform3D(-1, -2.53518e-06, 9.17733e-12, 0, -3.61999e-06, -1, 2.53518e-06, -1, 3.61999e-06, 0.15, -0.5, -0.416501)
+transform = Transform3D(-1, 2.50359e-06, -3.98977e-07, 0, 0.157376, 0.987539, 2.53518e-06, 0.987539, -0.157376, 0.15, -0.5, -0.416501)
 visible = false
 
 [node name="LeftHand" type="Marker3D" parent="Pivot/WeaponManager/FPSRig/SMG"]
@@ -1307,6 +1736,18 @@ transform = Transform3D(-0.757809, -0.422754, 0.496995, -0.407945, 0.901456, 0.1
 
 [node name="RightHand" type="Marker3D" parent="Pivot/WeaponManager/FPSRig/RocketLauncher"]
 transform = Transform3D(-0.272414, 0.955301, -0.114852, 0.958171, 0.258454, -0.122922, -0.0877434, -0.143533, -0.985748, -0.0498582, 0.0249852, 0.177537)
+
+[node name="Sword" parent="Pivot/WeaponManager/FPSRig" instance=ExtResource("8_w2j7u")]
+transform = Transform3D(-0.571229, 0.780712, -0.25335, -0.817904, -0.515562, 0.255399, 0.0687751, 0.353107, 0.933052, 0.330978, -0.443051, -0.989442)
+
+[node name="RightHand" type="Marker3D" parent="Pivot/WeaponManager/FPSRig/Sword"]
+transform = Transform3D(-0.496584, 0.839667, -0.219925, -0.0379556, 0.232125, 0.971946, 0.867161, 0.491, -0.0833999, 0.026374, 0.107391, -0.324659)
+
+[node name="LeftHand_unused" type="Marker3D" parent="Pivot/WeaponManager/FPSRig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+
+[node name="RightHand_unused" type="Marker3D" parent="Pivot/WeaponManager/FPSRig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
 
 [node name="BulletPoint" type="Marker3D" parent="Pivot/WeaponManager/FPSRig"]
 
@@ -1709,11 +2150,11 @@ skin = SubResource("Skin_6atod")
 [node name="LeftHandIK" type="SkeletonIK3D" parent="Pivot/WeaponManager/FPSRig/Arms/Skeleton3D"]
 root_bone = &"L_arm_00"
 tip_bone = &"L_wrist_02"
-target_node = NodePath("../../../Shotgun/LeftHand")
+target_node = NodePath("../../../LeftHand_unused")
 
 [node name="RightHandIK" type="SkeletonIK3D" parent="Pivot/WeaponManager/FPSRig/Arms/Skeleton3D"]
 root_bone = &"R_arm_024"
 tip_bone = &"R_wrist_026"
-target_node = NodePath("../../../Shotgun/RightHand")
+target_node = NodePath("../../../Sword/RightHand")
 
 [connection signal="animation_finished" from="Pivot/WeaponManager/FPSRig/RigAnimation" to="Pivot/WeaponManager" method="_animation_finished"]

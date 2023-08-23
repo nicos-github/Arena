@@ -7,6 +7,7 @@ class_name Projectile
 const GRAVITY = 19.62
 
 @export var IS_HITSCAN := false
+@export var IS_MELEE := false
 @export var PROJECTILE_SPEED := 5.0
 @export var TRAIL_SPEED := 0.2
 @export var DAMAGE := 1.0
@@ -14,6 +15,7 @@ const GRAVITY = 19.62
 @export var WALL_STRENGTH = 0.0		# wall banging power
 @export var HAS_GRAVITY := false
 @export var MAXIMUM_LIFETIME := 1.0	# projectile shot in air lifetime
+@export var MELEE_RANGE := 3.0 # how many meters the melee projectiles ranges
 
 # explosives
 @export_category("Explosive")
@@ -34,6 +36,7 @@ const GRAVITY = 19.62
 @export var TrailNode : Node3D
 @export var TrailParticle : GPUParticles3D
 @export var HitParticle : GPUParticles3D
+@export var HitSound : AudioStreamPlayer3D
 
 # active projectile ( is flying )
 var is_active := false
@@ -154,12 +157,20 @@ func _physics_process(delta):
 
 func hit() -> void:
 	
+	
 	var collision_point = ProjectileRay.get_collision_point()
 	var collision_normal = ProjectileRay.get_collision_normal()
 	var collider = ProjectileRay.get_collider()
 	
 	# set location to the hit point
 	ProjectileNode.global_transform.origin = collision_point + ( collision_normal * 0.1 )
+	
+	# if melee, check distance to origin, if larger than range, discard
+	if IS_MELEE:
+		var distance = ProjectileNode.global_transform.origin.distance_to(creation_origin)
+		if distance > MELEE_RANGE:
+			queue_free()
+			return
 	
 	# handle bounce, if bounce is left
 	if IS_BOUNCY:
@@ -184,7 +195,8 @@ func hit() -> void:
 	HitParticle.restart()
 	
 	# Play Hit Sound
-	
+	if is_instance_valid(HitSound):
+		HitSound.play()
 	
 	# Create Bullet Hole ( but not on characters )
 	if !(collider is CharacterBody3D):

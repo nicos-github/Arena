@@ -1119,3 +1119,5 @@ func apply_shake(time: float = 0.5, intensity: float = 0.1, _speed: float = 1.0)
 
 func on_weapon_manager_update_ammo(current_ammo, reserve_ammo):
 	AmmoLabel.text = "Ammo: " + str(current_ammo) + " / " + str(reserve_ammo)
+	if current_ammo == 0 and reserve_ammo == -1:
+		AmmoLabel.text = ""

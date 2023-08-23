@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="WeaponResource" load_steps=4 format=3 uid="uid://b6b54sssf8w66"]
+
+[ext_resource type="PackedScene" uid="uid://bssbibvcd2crk" path="res://actors/weapons/Sword/SwordProjectile.tscn" id="1_u6qeb"]
+[ext_resource type="AudioStream" uid="uid://ce0j4tex2xlv0" path="res://sfx/weapons/sword/swish-10.wav" id="2_yalja"]
+[ext_resource type="Script" path="res://actors/weapons/WeaponResource.gd" id="5_rbi8d"]
+
+[resource]
+script = ExtResource("5_rbi8d")
+WeaponName = "Sword"
+ActivateAnimation = "Sword_Activate"
+DeactivateAnimation = "Sword_Deactivate"
+ShootAnimation = "Sword_Attack"
+ReloadAnimation = "Sword_Inspect"
+OutOfAmmoAnimation = "Sword_Inspect"
+ShootSound = ExtResource("2_yalja")
+CurrentAmmo = 0
+MagazineSize = 0
+ReserveAmmo = -1
+MaxAmmo = 0
+isMelee = true
+ActionType = 3
+ProjectileType = ExtResource("1_u6qeb")
+ProjectileAmount = 1
+RecoilSprayX = 1.0
+RecoilSprayY = 0.5
+RecoilStrength = 1.0
+RecoilMaxValue = 10.0
+RecoilReset = 10.0
+RecoilPushBack = 0.5
+RecoilPushUp = 0.1

@@ -43,7 +43,7 @@ shadow_enabled = true
 environment = SubResource("Environment_oi1wn")
 
 [node name="Zombie" parent="." instance=ExtResource("1_cdlh1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -21.8256)
 target_path = NodePath("../Character")
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]

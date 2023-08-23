@@ -1,9 +1,9 @@
+AudioStreamPlayer3D
 Decal
 GPUParticlesCollisionBox3D
 GPUParticles3D
 Marker3D
 Node3D
-AudioStreamPlayer3D
 Node
 AnimationTree
 AnimationPlayer
