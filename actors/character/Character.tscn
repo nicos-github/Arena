@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=3 uid="uid://dsokpm17nsscw"]
+[gd_scene load_steps=65 format=3 uid="uid://dsokpm17nsscw"]
 
 [ext_resource type="Script" path="res://actors/character/Character.gd" id="1_gxiqw"]
 [ext_resource type="Script" path="res://actors/character/viewmodel/Viewmodel.gd" id="2_v7472"]
@@ -8,16 +8,23 @@
 [ext_resource type="Shader" path="res://maps/underwater_shader.gdshader" id="6_pg1xn"]
 [ext_resource type="Texture2D" uid="uid://54seuit6mw24" path="res://experimental/composition.png" id="7_4rdws"]
 [ext_resource type="Texture2D" uid="uid://7w7web5py083" path="res://hud/vignettes/damage.jpg" id="7_5sl2b"]
-[ext_resource type="AudioStream" uid="uid://dyufevdmufhk2" path="res://sfx/actors/player/jump.wav" id="8_5igk0"]
 [ext_resource type="Texture2D" uid="uid://cu5w201j72nli" path="res://hud/icons/grapple.png" id="8_dtw8n"]
 [ext_resource type="Texture2D" uid="uid://bsptgdayt7mcs" path="res://hud/icons/wallrun.png" id="9_0t40f"]
 [ext_resource type="AudioStream" uid="uid://7fbxir6sjmhh" path="res://sfx/actors/player/djump.wav" id="9_4q1r5"]
 [ext_resource type="AudioStream" uid="uid://gxgf4sdvlnwl" path="res://sfx/actors/player/grappling_throw.wav" id="10_m6fan"]
 [ext_resource type="AudioStream" uid="uid://re2herothnpe" path="res://sfx/actors/player/grappling_attach.wav" id="11_eoga3"]
+[ext_resource type="AudioStream" uid="uid://sj0op0elhici" path="res://sfx/actors/player/jump_voice.wav" id="11_kcgbp"]
 [ext_resource type="AudioStream" uid="uid://bk732yk2th0tk" path="res://sfx/actors/player/grappling_hooking.wav" id="12_vfscp"]
 [ext_resource type="AudioStream" uid="uid://ceuik37jxwkys" path="res://sfx/actors/player/grappling_retrieve_fast.wav" id="13_dxtoq"]
+[ext_resource type="AudioStream" uid="uid://dxpy27nr1plx4" path="res://sfx/actors/player/land.wav" id="13_kctu5"]
 [ext_resource type="AudioStream" uid="uid://ccilg1qfy4emn" path="res://sfx/actors/player/water.wav" id="14_mdbee"]
 [ext_resource type="AudioStream" uid="uid://co5iuetpcqsb" path="res://sfx/actors/player/water_splash.wav" id="17_a8hxh"]
+[ext_resource type="AudioStream" uid="uid://bxjrsqgdssjnx" path="res://sfx/actors/player/step1.wav" id="20_g80wo"]
+[ext_resource type="AudioStream" uid="uid://cuhlavyoo5hh2" path="res://sfx/actors/player/step2.wav" id="21_bpmq4"]
+[ext_resource type="AudioStream" uid="uid://bhpu712n7w8ha" path="res://sfx/actors/player/hit_normal.mp3" id="22_11wrt"]
+[ext_resource type="AudioStream" uid="uid://b0h6x471j5xrp" path="res://sfx/actors/player/bad_hit.wav" id="23_c2mba"]
+[ext_resource type="AudioStream" uid="uid://reek03ajp5tq" path="res://sfx/actors/player/sliding.wav" id="24_rvfja"]
+[ext_resource type="AudioStream" uid="uid://cvf3h2i1ie1qu" path="res://sfx/actors/player/slidejump.wav" id="25_jubcy"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_88ni7"]
 animation = &"Crouch"
@@ -518,6 +525,45 @@ shader_parameter/freq_noise = SubResource("NoiseTexture2D_pylge")
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_30r6p"]
 blend_mode = 1
 
+[sub_resource type="Animation" id="Animation_eolmr"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("EffectDamage:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("EffectDamage:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("EffectDamage:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
 [sub_resource type="Animation" id="Animation_md74f"]
 resource_name = "UI_Effect_Damage"
 step = 0.05
@@ -556,45 +602,6 @@ tracks/2/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
 "values": [Color(1, 1, 1, 0), Color(1, 0.290196, 0.619608, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_eolmr"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("EffectDamage:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("EffectDamage:visible")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [false]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("EffectDamage:modulate")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(1, 1, 1, 1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ew1vu"]
@@ -895,6 +902,7 @@ skeleton = NodePath("../../../../../Viewmodel")
 surface_material_override/0 = SubResource("StandardMaterial3D_8lpvy")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="Head/CameraPivot/Camera3D"]
+texture_filter = 5
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -907,8 +915,7 @@ stretch = true
 [node name="SubViewport" type="SubViewport" parent="Head/CameraPivot/Camera3D/SubViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
-msaa_3d = 2
-screen_space_aa = 1
+positional_shadow_atlas_size = 1024
 size = Vector2i(1920, 1080)
 render_target_update_mode = 4
 
@@ -1107,12 +1114,17 @@ horizontal_alignment = 1
 [node name="Jump" type="Node" parent="Audio"]
 
 [node name="SfxJump" type="AudioStreamPlayer" parent="Audio/Jump"]
-stream = ExtResource("8_5igk0")
-volume_db = -5.0
+stream = ExtResource("11_kcgbp")
+volume_db = -10.0
 bus = &"Sounds"
 
 [node name="SfxDoubleJump" type="AudioStreamPlayer" parent="Audio/Jump"]
 stream = ExtResource("9_4q1r5")
+volume_db = -5.0
+bus = &"Sounds"
+
+[node name="SfxLand" type="AudioStreamPlayer" parent="Audio/Jump"]
+stream = ExtResource("13_kctu5")
 volume_db = -5.0
 bus = &"Sounds"
 
@@ -1148,6 +1160,41 @@ bus = &"Sounds"
 [node name="SfxWaterSplash" type="AudioStreamPlayer" parent="Audio/Ambient"]
 stream = ExtResource("17_a8hxh")
 pitch_scale = 1.2
+bus = &"Sounds"
+
+[node name="Steps" type="Node" parent="Audio"]
+
+[node name="SfxFootstep01" type="AudioStreamPlayer" parent="Audio/Steps"]
+stream = ExtResource("20_g80wo")
+volume_db = -5.0
+bus = &"Sounds"
+
+[node name="SfxFootstep02" type="AudioStreamPlayer" parent="Audio/Steps"]
+stream = ExtResource("21_bpmq4")
+volume_db = -5.0
+bus = &"Sounds"
+
+[node name="Damage" type="Node" parent="Audio"]
+
+[node name="SfxDamageNormal" type="AudioStreamPlayer" parent="Audio/Damage"]
+stream = ExtResource("22_11wrt")
+volume_db = 5.0
+bus = &"Sounds"
+
+[node name="SfxDamageHard" type="AudioStreamPlayer" parent="Audio/Damage"]
+stream = ExtResource("23_c2mba")
+volume_db = 5.0
+bus = &"Sounds"
+
+[node name="Slide" type="Node" parent="Audio"]
+
+[node name="SfxSlide" type="AudioStreamPlayer" parent="Audio/Slide"]
+stream = ExtResource("24_rvfja")
+volume_db = -5.0
+bus = &"Sounds"
+
+[node name="SfxSlideJump" type="AudioStreamPlayer" parent="Audio/Slide"]
+stream = ExtResource("25_jubcy")
 bus = &"Sounds"
 
 [editable path="Viewmodel/MDL_Character"]

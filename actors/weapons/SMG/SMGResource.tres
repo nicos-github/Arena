@@ -29,5 +29,5 @@ RecoilSprayY = 2.0
 RecoilStrength = 0.1
 RecoilMaxValue = 1.8
 RecoilReset = 5.0
-RecoilPushBack = 0.3
-RecoilPushUp = 0.1
+RecoilPushBack = 0.2
+RecoilPushUp = 0.05

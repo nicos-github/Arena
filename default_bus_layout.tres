@@ -1,4 +1,4 @@
-[gd_resource type="AudioBusLayout" load_steps=8 format=3 uid="uid://480uj175ovs7"]
+[gd_resource type="AudioBusLayout" load_steps=9 format=3 uid="uid://480uj175ovs7"]
 
 [sub_resource type="AudioEffectFilter" id="AudioEffectFilter_s5uwj"]
 resource_name = "Filter"
@@ -31,6 +31,13 @@ room_size = 0.4
 spread = 0.2
 wet = 0.1
 
+[sub_resource type="AudioEffectEQ" id="AudioEffectEQ_ysgd6"]
+resource_name = "EQ"
+band_db/100_hz = 3.1
+band_db/320_hz = 2.1
+band_db/1000_hz = -1.1
+band_db/10000_hz = 3.7
+
 [resource]
 bus/1/name = &"Water"
 bus/1/solo = false
@@ -58,3 +65,5 @@ bus/2/volume_db = 0.0
 bus/2/send = &"Water"
 bus/2/effect/0/effect = SubResource("AudioEffectReverb_n41x5")
 bus/2/effect/0/enabled = true
+bus/2/effect/1/effect = SubResource("AudioEffectEQ_ysgd6")
+bus/2/effect/1/enabled = true

@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Arena"
-run/main_scene="res://maps/debug_01/DEBUG.tscn"
+run/main_scene="res://maps/zombies/Zombies.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
 boot_splash/show_image=false
 config/icon="res://icon.svg"
@@ -24,7 +24,6 @@ WindowManager="*res://scripts/WindowManager.gd"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/vsync/vsync_mode=0
 
 [dotnet]
 
@@ -141,4 +140,7 @@ common/max_physics_steps_per_frame=16
 
 [rendering]
 
+renderer/rendering_method="mobile"
 anti_aliasing/quality/msaa_3d=1
+lights_and_shadows/positional_shadow/atlas_size=2048
+lights_and_shadows/positional_shadow/atlas_size.mobile=1024

@@ -64,8 +64,13 @@ particles_anim_loop = false
 [sub_resource type="QuadMesh" id="QuadMesh_4ml2u"]
 material = SubResource("StandardMaterial3D_nosex")
 
-[node name="Projectile" type="Node3D"]
+[node name="Projectile" type="Node3D" node_paths=PackedStringArray("ProjectileNode", "ProjectileRay", "TrailNode", "TrailParticle", "HitParticle")]
 script = ExtResource("1_jn6e3")
+ProjectileNode = NodePath("ProjectileNode")
+ProjectileRay = NodePath("ProjectileRay")
+TrailNode = NodePath("Trail")
+TrailParticle = NodePath("Trail/TrailParticle")
+HitParticle = NodePath("Trail/HitParticle")
 
 [node name="ProjectileNode" type="Node3D" parent="."]
 

@@ -6,6 +6,8 @@ extends Node3D
 @onready var BulletPoint = $FPSRig/BulletPoint
 @onready var BulletCast = $FPSRig/BulletCast
 @onready var Camera = $"../.."
+@onready var MuzzleFlashLight = $FPSRig/BulletPoint/MuzzleFlashLight
+@onready var MuzzleFlashParticle = $FPSRig/BulletPoint/MuzzleFlashParticle
 
 var CurrentWeapon : WeaponResource
 var WeaponStack := [] # array of current available weapons ( inventory )
@@ -23,6 +25,7 @@ var projectiles_shot := 0
 var rng = RandomNumberGenerator.new()
 
 var player_rid := RID()
+var player_reference = null
 
 func _ready():
 	# hide all children of the rig
@@ -103,11 +106,17 @@ func shoot() -> void:
 		projectiles_shot = 0
 		if CurrentWeapon.CurrentAmmo > 0: # check if ammo is in magazine
 			CurrentWeapon.CurrentAmmo -= 1
+			
 			AnimPlayer.play(CurrentWeapon.ShootAnimation)
 			Audio.stream = CurrentWeapon.ShootSound
 			Audio.play()
 			updateAmmo()
 			
+			# muzzle
+			BulletPoint.show()
+			MuzzleFlashLight.show()
+			get_tree().create_timer(0.1, false, true, false).timeout.connect(MuzzleFlashLight.hide)
+			MuzzleFlashParticle.restart()
 				
 			# recoil
 			recoil = clamp(recoil + CurrentWeapon.RecoilStrength, 0.0, CurrentWeapon.RecoilMaxValue)
@@ -195,5 +204,5 @@ func launchProjectile() -> void:
 		new_gun_dir.y += rng.randfn(0.0, spray_size_y)
 		gun_end = gun_origin + new_gun_dir
 
-	
+	projectile.add_owner(player_reference)
 	projectile.shoot(gun_origin, gun_end)

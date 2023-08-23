@@ -7,7 +7,7 @@ extends CharacterBody3D
 
 const HEAD_LEVEL = 0.6
 const SENSITIVITY = 1
-const FALL_DAMAGE_GRACE = 15
+const FALL_DAMAGE_GRACE = 10
 
 var speed = 0
 const WALK_SPEED = 5.5
@@ -21,8 +21,8 @@ const CROUCH_SPEED = 3.0
 const CROUCH_HEIGHT = 0.5 # multiplier for base height of player which is around 1.8m
 const CROUCH_HEAD_LEVEL_DECREMENT = 0.5 # how much the head level shrinks
 
-const GROUND_ACCELERATION = 60.0
-const GROUND_DRAG = 12.0
+const GROUND_ACCELERATION = 55.0
+const GROUND_DRAG = 10.0
 const AIR_ACCELERATION = 25.0
 const AIR_DRAG = 1.0
 
@@ -75,7 +75,7 @@ var shake_speed := 0.0
 @onready var WallRightRay = $Head/Wallrunning/WallRightRay
 @onready var FloorRay = $Head/Wallrunning/FloorRay
 const WALL_RUN_SPEED = 10.0
-const WALL_MAX_RUN_TIME = 3.0
+const WALL_MAX_RUN_TIME = 1.5
 const WALL_JUMP_EXIT_SPEED = 8.0
 const WALL_JUMP_UP_FORCE = 5.0
 const WALL_JUMP_SIDE_FORCE = 7.0
@@ -84,7 +84,7 @@ const WALL_RUN_FOV_CHANGE = 5
 const WALL_RUN_FOV_CHANGE_SPEED = 5
 const WALL_RUN_VIEW_ROLL = 10
 const WALL_RUN_VIEW_ROLL_SPEED = 3.0
-const WALL_RUN_JUMP_STAMINA_COST = 1.5
+const WALL_RUN_JUMP_STAMINA_COST = 0.5
 const WALL_EXIT_TIMER = 0.01
 var is_wallrunning = false
 var is_exiting_wall = false
@@ -109,6 +109,8 @@ const SLIDING_DRAG = 3
 const SLIDE_FOV_CHANGE = 10
 const SLIDE_MIN_SPEED = CROUCH_SPEED - 0.1 # under this speed sliding will stop
 const SLIDE_VIEW_ROLL = -3
+@onready var SfxSlide = $Audio/Slide/SfxSlide
+@onready var SfxSlideJump = $Audio/Slide/SfxSlideJump
 
 # Viewmodel Action Transforms
 const VIEWMODEL_ACTION_RESET := 5.0
@@ -157,6 +159,11 @@ const GRAPPLING_VIEW_ROLL_SPEED = 5.0
 # Grapple UI
 @onready var GrappleProgressBar = $UserInterface/GrappleProgressBar
 
+# Steps
+var last_bob_sign := 0.0
+@onready var SfxFootstep01 = $Audio/Steps/SfxFootstep01
+@onready var SfxFootstep02 = $Audio/Steps/SfxFootstep02
+
 # UI
 @onready var FPSLabel = $UserInterface/Information/FPSLabel
 @onready var SpeedLabel = $UserInterface/Information/SpeedLabel
@@ -168,6 +175,9 @@ const GRAPPLING_VIEW_ROLL_SPEED = 5.0
 # Audio
 @onready var SfxJump = $Audio/Jump/SfxJump
 @onready var SfxDoubleJump = $Audio/Jump/SfxDoubleJump
+@onready var SfxLand = $Audio/Jump/SfxLand
+@onready var SfxDamageNormal = $Audio/Damage/SfxDamageNormal
+@onready var SfxDamageHard = $Audio/Damage/SfxDamageHard
 
 # Ambient Audio
 @onready var SfxWaterSwimming = $Audio/Ambient/SfxWaterSwimming
@@ -221,6 +231,7 @@ func _ready():
 	
 	# Weapon Manager set player rid for bullets and projectiles
 	WeaponManager.player_rid = self.get_rid()
+	WeaponManager.player_reference = self
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
@@ -230,7 +241,7 @@ func _unhandled_input(event):
 		
 	_handle_debug_events(event)
 
-func _handle_debug_events(event):
+func _handle_debug_events(_event):
 	if Input.is_action_just_pressed("debug_slowdown"):
 		Engine.time_scale = 0.25
 	if Input.is_action_just_pressed("debug_speedup"):
@@ -272,7 +283,7 @@ func _physics_process(delta):
 	# screenshake
 	if shake_time > 0.0:
 		shake_time -= delta
-	Camera.transform.origin = Vector3(sin(shake_time * SHAKE_X * shake_speed) * shake_intensity, cos(shake_time * SHAKE_Y * shake_speed) * shake_intensity, 0.0) * (shake_time / shake_max_time)
+	Camera.transform.origin = Vector3(sin(shake_time * SHAKE_X * shake_speed / Engine.time_scale) * shake_intensity, cos(shake_time * SHAKE_Y * shake_speed / Engine.time_scale) * shake_intensity, 0.0) * (shake_time / shake_max_time)
 	var model_shake = Camera.transform.origin * SHAKE_VIEW_MODEL_INTENSITY
 	
 	# viewmodel bob
@@ -282,6 +293,13 @@ func _physics_process(delta):
 	bob_jump_time = lerp(bob_jump_time, jump_modify, BOB_RESET_TIME * delta * 2.0)
 	var model_bob = _head_bob(bob_time) * 0.2 + Vector3(0.0, bob_jump_time, 0.0)
 	
+	
+	if (sign(model_bob.y) != last_bob_sign) and (last_bob_sign == 1.0):
+		var steps = [SfxFootstep01, SfxFootstep02]
+		steps.shuffle()
+		steps[0].pitch_scale = randfn(1.0, 0.05)
+		steps[0].play()
+	last_bob_sign = sign(model_bob.y)
 	
 	# reset viewmodel action y
 	viewmodel_action_x = lerp(viewmodel_action_x, target_viewmodel_action_x, VIEWMODEL_ACTION_RESET * delta)
@@ -342,6 +360,9 @@ func _movement_normal(delta):
 	
 	if last_fall_velocity < 0.0 and is_on_floor(): ## Player Landed
 		
+		# land sound
+		SfxLand.play()
+		
 		# set the viewmodel a bit down
 		jump_modify = LAND_VIEW_MODEL_HEIGHT
 		
@@ -361,6 +382,10 @@ func _movement_normal(delta):
 		double_jumped = false
 	
 
+	# Get the input direction and handle the movement/deceleration.
+	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	var direction = (Head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	
 		
 	# Handle sprint
 	speed = SPRINT_SPEED
@@ -379,7 +404,7 @@ func _movement_normal(delta):
 	if is_crouching and is_on_floor() and get_floor_angle(Vector3.UP) != 0 and velocity.length() >= SLIDE_MIN_SPEED:
 		movement = MOVEMENT.SLIDING
 		is_walking = false
-	elif !is_crouching and !is_walking and velocity.length() >= CROUCH_SPEED and Input.is_action_pressed("move_crouch"):
+	elif !is_crouching and !is_walking and velocity.length() >= CROUCH_SPEED and Input.is_action_pressed("move_crouch") and input_dir:
 		movement = MOVEMENT.SLIDING
 		is_walking = false
 	
@@ -409,10 +434,6 @@ func _movement_normal(delta):
 	# Position camera at head level
 	Head.transform.origin.y = lerp(Head.transform.origin.y, head_level, 10 * delta)
 
-	# Get the input direction and handle the movement/deceleration.
-	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	var direction = (Head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	
 	# Acceleration and drag
 	var acceleration := Vector3()
 
@@ -739,7 +760,7 @@ func _movement_sliding(delta):
 	if wish_jump_time > 0.0 and is_on_floor():
 		#velocity.y = Vector3(velocity.x, 0, velocity.z).length()
 		velocity.y = JUMP_VELOCITY
-		SfxJump.play()
+		SfxSlideJump.play()
 		velocity = velocity.rotated(Vector3.UP, Input.get_axis("move_right","move_left") * 0.5)
 	
 	if !is_on_floor():
@@ -749,6 +770,11 @@ func _movement_sliding(delta):
 	
 	move_and_slide()
 	
+	if is_sliding and is_on_floor():
+		if !SfxSlide.is_playing():
+			SfxSlide.play()
+	else:
+		SfxSlide.stop()
 	
 	# FOV 
 	var target_fov = FOV_BASE + SLIDE_FOV_CHANGE
@@ -758,7 +784,7 @@ func _movement_sliding(delta):
 	var view_sway = deg_to_rad(SLIDE_VIEW_ROLL)
 	Head.rotation.z = lerp(Head.rotation.z, view_sway, delta * VIEW_SWAY_SPEED)
 
-func _check_grappling(delta):
+func _check_grappling(_delta):
 	
 	# check if cooldown isnt active
 	if grapple_cooldown > 0.0:
@@ -1052,18 +1078,43 @@ func _exit_ladder(node):
 		velocity.y = LADDER_EXIT_VELOCITY
 	print("LADDER EXITED")
 
-func damage(damage: float = 0.0, knockback: Vector3 = Vector3(0, 0, 0)) -> void:
+func damage(_damage: float = 0.0, knockback: Vector3 = Vector3(0, 0, 0), projectile_owner := RID()) -> void:
+	
 	_stop_grappling()
+	
+	# knockback
 	movement = MOVEMENT.NORMAL
 	velocity += knockback
-	apply_shake(min(0.5 * damage / 10, 1.0), 0.2 * damage / 100, 3.0)
-	UIEffectsPlayer.play("UI_Effect_Damage", 0, 1.0 / min(0.5 * damage / 10, 1.0), false)
+	
+	# shake
+	apply_shake(min(0.5 * _damage / 10, 1.0), 0.2 * _damage / 100, 3.0)
+	
+	# effect
+	UIEffectsPlayer.play("UI_Effect_Damage", 0, 1.0 / min(0.5 * _damage / 10, 1.0), false)
+	
+	# hitstop
+	#hit_stop_init(0.2, 0.1)
+	
+	# sfx
+	if _damage > 0:
+		if _damage <= 30:
+			SfxDamageNormal.play()
+		else:
+			SfxDamageHard.play()
 
-func apply_shake(time: float = 0.5, intensity: float = 0.1, speed: float = 1.0) -> void:
+func hit_stop_init( stop_time := 0.5, time_scale := 0.1 ) -> void:
+	var engine_spd = Engine.time_scale # save time scale
+	Engine.time_scale = time_scale
+	get_tree().create_timer(stop_time, true, true, true).timeout.connect(hit_stop_resume.bind(engine_spd))
+
+func hit_stop_resume(resume_spd) -> void:
+	Engine.time_scale = resume_spd
+
+func apply_shake(time: float = 0.5, intensity: float = 0.1, _speed: float = 1.0) -> void:
 	if time >= shake_time:
 		shake_max_time = time
 		shake_time = time
-		shake_speed = speed
+		shake_speed = _speed
 		shake_intensity = intensity
 
 func on_weapon_manager_update_ammo(current_ammo, reserve_ammo):
