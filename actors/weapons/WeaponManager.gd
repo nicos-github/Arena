@@ -19,6 +19,7 @@ var NextWeapon: String
 @export var StartWeapons: Array[String]		# all weapons in the inventory at game start
 
 signal update_ammo
+signal weapon_shot
 
 var recoil := 0.0
 var projectiles_shot := 0
@@ -110,8 +111,10 @@ func shoot() -> void:
 			Audio.stream = CurrentWeapon.ShootSound
 			Audio.play()
 			launchMeleeProjectile()
-		
+			emit_signal("weapon_shot")
 		elif CurrentWeapon.CurrentAmmo > 0: # check if ammo is in magazine
+			
+			
 			CurrentWeapon.CurrentAmmo -= 1
 			
 			AnimPlayer.play(CurrentWeapon.ShootAnimation)
@@ -135,6 +138,7 @@ func shoot() -> void:
 				launchProjectile()
 				projectiles_shot += 1
 			
+			emit_signal("weapon_shot")
 			
 		else:
 			reload()

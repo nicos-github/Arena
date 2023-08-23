@@ -74,6 +74,7 @@ use_collision = true
 
 [node name="ZombieSpawner" type="Node3D" parent="."]
 script = ExtResource("5_jk44d")
+spawn_delay = 1.0
 target_path = NodePath("../Character")
 
 [node name="Spawn01" type="Marker3D" parent="ZombieSpawner"]

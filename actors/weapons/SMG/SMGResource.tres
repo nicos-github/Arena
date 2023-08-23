@@ -21,6 +21,7 @@ CurrentAmmo = 18
 MagazineSize = 18
 ReserveAmmo = 54
 MaxAmmo = 90
+isMelee = false
 ActionType = 3
 ProjectileType = ExtResource("1_ge26b")
 ProjectileAmount = 1

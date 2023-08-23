@@ -232,6 +232,8 @@ func _ready():
 	# Weapon Manager set player rid for bullets and projectiles
 	WeaponManager.player_rid = self.get_rid()
 	WeaponManager.player_reference = self
+	
+	WeaponManager.connect("weapon_shot", apply_shake.bind(0.2, 0.02))
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
@@ -261,21 +263,6 @@ func _physics_process(delta):
 			_movement_sliding(delta)
 		MOVEMENT.GRAPPLING:
 			_movement_grappling(delta)
-			
-	# shooting
-	if Input.is_action_just_pressed("action_shoot") and false:
-		var projectile = preload("res://actors/projectiles/Projectile.tscn").instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
-		get_tree().root.add_child(projectile)
-		
-		projectile.ignore(self.get_rid())
-		projectile.initialize(false, 30.0, 0.1, 1.0, 0.0, 0.0, true, 15.0)
-		projectile.initialize_explosive(true, 10.0, 15.0, 1.0)
-		
-		var gun_origin = Camera.global_transform.origin
-		var gun_end = gun_origin - Camera.global_transform.basis.z
-		projectile.shoot(gun_origin, gun_end)
-		
-		apply_shake(0.3, 0.02, 1.7)
 	
 	# viewmodel
 	_handle_viewmodel(delta)
