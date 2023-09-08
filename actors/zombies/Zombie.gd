@@ -3,14 +3,14 @@ extends CharacterBody3D
 class_name Zombie
 
 const SPEED = 4.0
-const ATTACK_RANGE = 2.0
+const ATTACK_RANGE = 2.5
 const TURN_SPEED = 10.0
 
 @export var health := 100.0
 var dead := false
 
 @export var IS_SHOOTER = false
-@export var SHOOTING_RANGE = 10
+@export var SHOOTING_RANGE = 15.0
 
 var target = null
 var original_target = null
@@ -120,7 +120,7 @@ func shoot_projectile() -> void:
 	projectile.initialize(false, 15.0, 0.2, 25.0, 5.0, 0.0, true, 1.0)
 	projectile.ignore(self.get_rid())
 	var origin = $GunOrigin.global_position
-	var end = origin + $GunOrigin.global_transform.basis.z + Vector3(0.0, 0.5, 0.0)
+	var end = origin + $GunOrigin.global_transform.basis.z + Vector3(0.0, 0.2, 0.0)
 	
 	projectile.add_owner(self)
 	projectile.shoot(origin, end)

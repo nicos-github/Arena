@@ -1,5 +1,5 @@
 res://default_bus_layout.tres
-res://actors/character/viewmodel/ViewmodelCamera.tscn
+res://maps/zombies/Zombies.tscn
 res://assets/prototype/mat_floor.tres
 res://actors/weapons/SMG/SMGResource.tres
 res://experimental/grapple/grapple_material.tres
@@ -8,10 +8,12 @@ res://assets/prototype/mat_wall.tres
 res://maps/water_shader.gdshader
 res://actors/character/crt.gdshader
 res://actors/character/pixel.gdshader
-res://maps/zombies/Zombies.tscn
-res://actors/weapons/Sword/SwordProjectile.tscn
+res://actors/zombies/ZombieSpawner.tscn
+res://maps/debug_01/DEBUG.tscn
 res://actors/character/Character.tscn
-res://actors/zombies/Zombie.tscn
+res://actors/character/viewmodel/ViewmodelCamera.tscn
 res://actors/weapons/Sword/SwordResource.tres
+res://scripts/WindowManager.gd
+res://actors/zombies/Zombie.tscn
+res://actors/zombies/Zombie.gd
 res://actors/character/Character.gd
-res://actors/weapons/WeaponManager.gd

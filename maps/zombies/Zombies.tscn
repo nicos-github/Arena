@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://xww0hu3wpysq" path="res://assets/prototype/mat_floor.tres" id="1_e1b05"]
 [ext_resource type="PackedScene" uid="uid://dsokpm17nsscw" path="res://actors/character/Character.tscn" id="2_lh304"]
 [ext_resource type="Material" uid="uid://c6d7nr6mc3rod" path="res://assets/prototype/mat_wall.tres" id="3_m2ywy"]
-[ext_resource type="Script" path="res://actors/zombies/ZombieSpawner.gd" id="5_jk44d"]
+[ext_resource type="PackedScene" uid="uid://7bi85oga5mme" path="res://actors/zombies/ZombieSpawner.tscn" id="5_5jvr8"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_pjo7p"]
 sky_top_color = Color(0.509804, 0.431373, 0.54902, 1)
@@ -72,22 +72,16 @@ use_collision = true
 
 [node name="Character" parent="." instance=ExtResource("2_lh304")]
 
-[node name="ZombieSpawner" type="Node3D" parent="."]
-script = ExtResource("5_jk44d")
-spawn_delay = 1.0
-target_path = NodePath("../Character")
+[node name="ZombieSpawner" parent="." instance=ExtResource("5_5jvr8")]
 
-[node name="Spawn01" type="Marker3D" parent="ZombieSpawner"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -5.9, 0, 21.5)
+[node name="Marker3D" type="Marker3D" parent="ZombieSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16)
 
-[node name="Spawn02" type="Marker3D" parent="ZombieSpawner"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.6, 0, 21.5)
+[node name="Marker3D2" type="Marker3D" parent="ZombieSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.5, 0, 16)
 
-[node name="Spawn03" type="Marker3D" parent="ZombieSpawner"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 8.1, 0, 21.5)
+[node name="Marker3D3" type="Marker3D" parent="ZombieSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.5, 0, -29.5)
 
-[node name="Spawn04" type="Marker3D" parent="ZombieSpawner"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 18.1, 0, 21.5)
-
-[node name="Spawn05" type="Marker3D" parent="ZombieSpawner"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 18.1, 0, 21.5)
+[node name="Marker3D4" type="Marker3D" parent="ZombieSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, -29.5)

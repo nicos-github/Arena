@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://7bi85oga5mme"]
+
+[ext_resource type="Script" path="res://actors/zombies/ZombieSpawner.gd" id="1_uklr6"]
+
+[node name="ZombieSpawner" type="Node3D"]
+script = ExtResource("1_uklr6")
+spawn_delay = 1.0
+target_path = NodePath("../Character")

@@ -1067,6 +1067,7 @@ func _exit_ladder(node):
 
 func damage(_damage: float = 0.0, knockback: Vector3 = Vector3(0, 0, 0), projectile_owner := RID()) -> void:
 	
+	SfxSlide.stop()
 	_stop_grappling()
 	
 	# knockback
