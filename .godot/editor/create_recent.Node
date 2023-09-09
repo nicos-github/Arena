@@ -1,3 +1,11 @@
+Button
+HBoxContainer
+LineEdit
+TextEdit
+Label
+MarginContainer
+VBoxContainer
+Panel
 Marker3D
 NavigationRegion3D
 AudioStreamPlayer3D
@@ -19,14 +27,7 @@ ColorRect
 TextureRect
 SkeletonIK3D
 RayCast3D
-Label
-HBoxContainer
-VBoxContainer
 AudioStreamPlayer
 BoneAttachment3D
 ProgressBar
 LightmapGI
-StaticBody3D
-GridMap
-Camera3D
-SubViewport
