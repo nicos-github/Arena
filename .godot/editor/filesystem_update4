@@ -1,10 +1,1 @@
 res://default_bus_layout.tres
-res://server/scripts/Server.gd
-res://maps/underwater_shader.gdshader
-res://maps/water_shader.gdshader
-res://actors/character/crt.gdshader
-res://actors/character/pixel.gdshader
-res://#client/menus/cl_main_menu.tscn
-res://#server/scripts/Server.gd
-res://#server/menus/sv_main_menu.tscn
-res://#server/menus/sv_main_menu.gd

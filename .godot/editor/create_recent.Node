@@ -1,10 +1,11 @@
 Button
-HBoxContainer
-LineEdit
+HSeparator
 TextEdit
 Label
-MarginContainer
 VBoxContainer
+HBoxContainer
+LineEdit
+MarginContainer
 Panel
 Marker3D
 NavigationRegion3D
@@ -29,5 +30,3 @@ SkeletonIK3D
 RayCast3D
 AudioStreamPlayer
 BoneAttachment3D
-ProgressBar
-LightmapGI

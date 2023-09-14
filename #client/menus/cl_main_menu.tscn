@@ -1,4 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://5d6rm7dwb05w"]
+[gd_scene load_steps=4 format=3 uid="uid://5d6rm7dwb05w"]
+
+[ext_resource type="Script" path="res://#client/menus/cl_main_menu.gd" id="1_bjmyc"]
+[ext_resource type="PackedScene" uid="uid://kxg28u4khpu1" path="res://#shared/menus/Console.tscn" id="2_1sk8m"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x5l6u"]
 bg_color = Color(0.278431, 0.278431, 0.278431, 1)
@@ -10,6 +13,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_bjmyc")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -41,3 +45,12 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_x5l6u")
 text = "Client"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="ServerConnect" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Connect to Server"
+
+[node name="Console" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_1sk8m")]
+layout_mode = 2
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/ServerConnect" to="." method="_on_server_connect_pressed"]

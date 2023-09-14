@@ -1,4 +1,6 @@
-res://server/scripts
+C:/Users/Mia/Desktop/SharedFolder
+res://#shared/menus
+res://#client/scripts
 res://actors/zombies
 res://actors/weapons/Sword
 res://assets/lowpoly_char/anim
@@ -16,6 +18,5 @@ res://experimental/grapple
 res://actors/character
 res://actors/character/viewmodel
 res://maps
-D:/GitHub/Arena/movies
 res://scripts
 res://

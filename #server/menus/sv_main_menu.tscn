@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cjtn5oiyxfdqt"]
+[gd_scene load_steps=4 format=3 uid="uid://cjtn5oiyxfdqt"]
 
 [ext_resource type="Script" path="res://#server/menus/sv_main_menu.gd" id="1_w1nvd"]
+[ext_resource type="PackedScene" uid="uid://kxg28u4khpu1" path="res://#shared/menus/Console.tscn" id="2_hhbtn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x5l6u"]
 bg_color = Color(0.278431, 0.278431, 0.278431, 1)
@@ -51,24 +52,20 @@ text = "Status: Offline"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="IP" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/IP"]
-layout_mode = 2
-text = "Public IP Address: "
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ExternalIP" type="LineEdit" parent="MarginContainer/VBoxContainer/IP"]
-layout_mode = 2
-text = "0.0.0.0"
-alignment = 1
-editable = false
-
 [node name="ServerStartButton" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Start Server"
 
+[node name="ClientStartButton" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Start Client"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 64
+
+[node name="Console" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_hhbtn")]
+layout_mode = 2
+
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ServerStartButton" to="." method="_on_server_start_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/ClientStartButton" to="." method="_on_client_start_button_pressed"]
