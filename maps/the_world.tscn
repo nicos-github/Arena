@@ -1,9 +1,10 @@
-[gd_scene load_steps=26 format=3 uid="uid://qa287kfrivkv"]
+[gd_scene load_steps=27 format=3 uid="uid://qa287kfrivkv"]
 
 [ext_resource type="Material" uid="uid://xww0hu3wpysq" path="res://assets/prototype/mat_floor.tres" id="1_n2ne3"]
 [ext_resource type="PackedScene" uid="uid://dsokpm17nsscw" path="res://actors/character/Character.tscn" id="1_q5kbh"]
 [ext_resource type="Shader" path="res://maps/water_shader.gdshader" id="3_qnmpi"]
 [ext_resource type="Material" uid="uid://c6d7nr6mc3rod" path="res://assets/prototype/mat_wall.tres" id="4_6rohy"]
+[ext_resource type="PackedScene" uid="uid://dohpk3jdxbjdh" path="res://assets/character/character.glb" id="5_xxrlx"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bsg7b"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -102,7 +103,7 @@ size = Vector3(1.23611, 11.2961, 0.234768)
 environment = SubResource("Environment_6vu6l")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.553566, -0.721231, 0.416403, 2.78059e-08, 0.5, 0.866025, -0.832805, -0.479402, 0.276783, 0, 0, 0)
+transform = Transform3D(0.553566, -0.72123, 0.416403, 0.72123, 0.665175, 0.193312, -0.416403, 0.193311, 0.888392, 0, 0, 0)
 layers = 3
 shadow_enabled = true
 directional_shadow_blend_splits = true
@@ -361,6 +362,9 @@ material = ExtResource("4_6rohy")
 
 [node name="GPUParticlesCollisionBox3D" type="GPUParticlesCollisionBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.58418, 1.69044, -3.13294)
+
+[node name="character" parent="." instance=ExtResource("5_xxrlx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
 
 [connection signal="body_entered" from="Geometry/CSGBox3D2/CSGBox3D/LadderArea" to="Character" method="_enter_ladder"]
 [connection signal="body_exited" from="Geometry/CSGBox3D2/CSGBox3D/LadderArea" to="Character" method="_exit_ladder"]

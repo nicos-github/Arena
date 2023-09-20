@@ -28,7 +28,7 @@ func spawn():
 	
 	var zombie = zombieScn.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 	zombie.target_path = target_path
-	get_parent_node_3d().add_child(zombie)
+	get_parent_node_3d().add_child.call_deferred(zombie)
 	zombie.global_transform = spawn_transform
 	
 	

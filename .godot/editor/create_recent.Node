@@ -1,13 +1,14 @@
+LineEdit
+Marker3D
+SkeletonIK3D
 Button
 HSeparator
 TextEdit
 Label
 VBoxContainer
 HBoxContainer
-LineEdit
 MarginContainer
 Panel
-Marker3D
 NavigationRegion3D
 AudioStreamPlayer3D
 Decal
@@ -26,7 +27,6 @@ CSGBox3D
 OmniLight3D
 ColorRect
 TextureRect
-SkeletonIK3D
 RayCast3D
 AudioStreamPlayer
 BoneAttachment3D

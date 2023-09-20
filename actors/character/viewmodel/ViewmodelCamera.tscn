@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://cv6ff3bnu7e70"]
+[gd_scene load_steps=45 format=3 uid="uid://cv6ff3bnu7e70"]
 
 [ext_resource type="Script" path="res://actors/weapons/WeaponManager.gd" id="1_tfjwg"]
 [ext_resource type="PackedScene" uid="uid://dnsuoqxtn2qr6" path="res://assets/weapons/shotgun/Shotgun.tscn" id="1_v1cnx"]
@@ -1786,6 +1786,8 @@ bind/48/name = &"Joint_3_10_047"
 bind/48/bone = -1
 bind/48/pose = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5yovd"]
+
 [node name="ViewmodelCamera" type="Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 cull_mask = 2
@@ -2239,6 +2241,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1525e-09, 0.0297009, -0.047
 layers = 2
 mesh = SubResource("ArrayMesh_mnt7b")
 skin = SubResource("Skin_6atod")
+surface_material_override/0 = SubResource("StandardMaterial3D_5yovd")
 
 [node name="LeftHandIK" type="SkeletonIK3D" parent="Pivot/WeaponManager/FPSRig/Arms/Skeleton3D"]
 root_bone = &"L_arm_00"

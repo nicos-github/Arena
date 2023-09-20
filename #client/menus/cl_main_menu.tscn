@@ -46,6 +46,11 @@ text = "Client"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="GameCode" type="LineEdit" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Game Code [0000]"
+alignment = 1
+
 [node name="ServerConnect" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Connect to Server"
@@ -53,4 +58,5 @@ text = "Connect to Server"
 [node name="Console" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_1sk8m")]
 layout_mode = 2
 
+[connection signal="text_changed" from="MarginContainer/VBoxContainer/GameCode" to="." method="_on_game_code_text_changed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ServerConnect" to="." method="_on_server_connect_pressed"]

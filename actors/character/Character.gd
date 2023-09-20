@@ -4,8 +4,11 @@ extends CharacterBody3D
 @onready var CameraPivot = $Head/CameraPivot
 @onready var Camera = $Head/CameraPivot/Camera3D
 @onready var CollisionShape = $CollisionShape3D
+@onready var TPS_Camera = $Head/thirdperson
 
-const HEAD_LEVEL = 0.6
+var thirdperson = false
+
+const HEAD_LEVEL = 0.5
 const SENSITIVITY = 1
 const FALL_DAMAGE_GRACE = 10
 
@@ -19,7 +22,7 @@ const SPRINT_SPEED = 8.5
 var is_crouching = false
 const CROUCH_SPEED = 3.0
 const CROUCH_HEIGHT = 0.5 # multiplier for base height of player which is around 1.8m
-const CROUCH_HEAD_LEVEL_DECREMENT = 0.5 # how much the head level shrinks
+const CROUCH_HEAD_LEVEL_DECREMENT = 0.4 # how much the head level shrinks
 
 const GROUND_ACCELERATION = 55.0
 const GROUND_DRAG = 10.0
@@ -51,7 +54,7 @@ const FOV_CHANGE = 2.0
 const FOV_CHANGE_SPEED = 5.0
 
 # Bob variables
-const BOB_FREQUENCY = 3.0
+const BOB_FREQUENCY = 2.0 # steps per second
 const BOB_AMPLITUDE = 0.03 # 0.03
 const BOB_RESET_TIME = 5.0
 var bob_time = 0.0
@@ -74,7 +77,7 @@ var shake_speed := 0.0
 @onready var WallLeftRay = $Head/Wallrunning/WallLeftRay
 @onready var WallRightRay = $Head/Wallrunning/WallRightRay
 @onready var FloorRay = $Head/Wallrunning/FloorRay
-const WALL_RUN_SPEED = 10.0
+const WALL_RUN_SPEED = 11.0
 const WALL_MAX_RUN_TIME = 1.5
 const WALL_JUMP_EXIT_SPEED = 8.0
 const WALL_JUMP_UP_FORCE = 5.0
@@ -84,7 +87,7 @@ const WALL_RUN_FOV_CHANGE = 5
 const WALL_RUN_FOV_CHANGE_SPEED = 5
 const WALL_RUN_VIEW_ROLL = 10
 const WALL_RUN_VIEW_ROLL_SPEED = 3.0
-const WALL_RUN_JUMP_STAMINA_COST = 0.5
+const WALL_RUN_JUMP_STAMINA_COST = 1.0
 const WALL_EXIT_TIMER = 0.01
 var is_wallrunning = false
 var is_exiting_wall = false
@@ -103,12 +106,13 @@ var double_jumped = false
 var is_sliding = false
 var slide_time = 0.0
 const SLIDING_TIME = 0.75
-const SLIDING_SPEED = 8
+const SLIDING_SPEED = 10
 const SLIDING_ACCEL = 8
 const SLIDING_DRAG = 3
 const SLIDE_FOV_CHANGE = 10
 const SLIDE_MIN_SPEED = CROUCH_SPEED - 0.1 # under this speed sliding will stop
 const SLIDE_VIEW_ROLL = -3
+const SLIDE_HEAD_LEVEL_DECREMENT = 0.7
 @onready var SfxSlide = $Audio/Slide/SfxSlide
 @onready var SfxSlideJump = $Audio/Slide/SfxSlideJump
 
@@ -190,6 +194,7 @@ var AudioWaterBus = AudioServer.get_bus_index("Water")
 @onready var ViewmodelCharacter = $Viewmodel
 @onready var ViewmodelCamera = $Head/CameraPivot/Camera3D/SubViewportContainer/SubViewport/ViewmodelCamera
 @onready var ViewmodelCameraPivot = $Head/CameraPivot/Camera3D/SubViewportContainer/SubViewport/ViewmodelCamera/Pivot
+@onready var ViewmodelViewport = $Head/CameraPivot/Camera3D/SubViewportContainer
 
 # WeaponManager
 @onready var WeaponManager = $Head/CameraPivot/Camera3D/SubViewportContainer/SubViewport/ViewmodelCamera/Pivot/WeaponManager
@@ -271,6 +276,7 @@ func _physics_process(delta):
 	if shake_time > 0.0:
 		shake_time -= delta
 	Camera.transform.origin = Vector3(sin(shake_time * SHAKE_X * shake_speed / Engine.time_scale) * shake_intensity, cos(shake_time * SHAKE_Y * shake_speed / Engine.time_scale) * shake_intensity, 0.0) * (shake_time / shake_max_time)
+	Camera.transform.origin.z -= 0.1
 	var model_shake = Camera.transform.origin * SHAKE_VIEW_MODEL_INTENSITY
 	
 	# viewmodel bob
@@ -301,6 +307,11 @@ func _physics_process(delta):
 	# grappling hook
 	_handle_grappling_line(delta)
 	
+	# stop slide sound
+	if movement != MOVEMENT.SLIDING:
+		SfxSlide.stop()
+		is_sliding = false
+		#FIXME:: END SLIDING 
 
 	# reset wall run 
 	if is_on_floor() and movement != MOVEMENT.GRAPPLING:
@@ -319,12 +330,42 @@ func _physics_process(delta):
 	WishJump.text = "WishJump: " + str(wish_jump_time > 0.0)
 	GrappleProgressBar.value = (GRAPPLE_COOLDOWN - grapple_cooldown) / GRAPPLE_COOLDOWN
 	WallRunProgressBar.value = wall_run_stamina / WALL_MAX_RUN_TIME
-
+	
+	
+	# FPS and TPS
+	if Input.is_action_just_pressed("action_toggle_thirdperson"):
+		Camera.clear_current()
+		TPS_Camera.clear_current()
+		
+		if thirdperson:
+			Camera.make_current()
+			thirdperson = false
+			ViewmodelViewport.visible = true
+			ViewmodelCharacter._init_first_person()
+		else:
+			TPS_Camera.make_current()
+			thirdperson = true
+			ViewmodelViewport.visible = false
+			ViewmodelCharacter._init_third_person()
+			
+	
 
 func _handle_viewmodel(delta):
 	ViewmodelCharacter.target_model_rotation = Head.rotation.y
 	ViewmodelCharacter._set_aim_rotation(Vector2(0.0, CameraPivot.rotation.x))
 	ViewmodelCharacter._set_crouching(is_crouching)
+	ViewmodelCharacter._set_sliding(is_sliding)
+	ViewmodelCharacter._set_grounded(is_on_floor() or FloorRay.is_colliding())
+	ViewmodelCharacter._set_wallrun(is_wallrunning and is_on_wall(), -1.0 if WallLeftRay.is_colliding() else 1.0 )
+	ViewmodelCharacter._set_ladder(movement == MOVEMENT.LADDER, velocity.y / LADDER_SPEED)
+	ViewmodelCharacter._set_grapple(is_grappling, velocity.length() / GRAPPLE_SPEED)
+	
+	
+	var vel = velocity / SPRINT_SPEED
+	var viewmdl_vel_forward = -vel.dot(Head.global_transform.basis.z)
+	var viewmdl_vel_right = vel.dot(Head.global_transform.basis.x)
+	print(Vector2(viewmdl_vel_right, viewmdl_vel_forward))
+	ViewmodelCharacter._set_velocity(Vector2(viewmdl_vel_right, viewmdl_vel_forward))
 	
 	# HeadBob
 	if movement == MOVEMENT.NORMAL and is_on_floor():
@@ -467,6 +508,7 @@ func _movement_normal(delta):
 			velocity = direction * Vector2(velocity.x,velocity.z).length()
 			velocity.y = JUMP_VELOCITY
 			SfxDoubleJump.play()
+			ViewmodelCharacter._set_jump() # viewmodel double jump
 		else:
 			wish_jump_time = WISH_JUMP_TIME
 	
@@ -478,6 +520,7 @@ func _movement_normal(delta):
 	if is_on_floor() and wish_jump_time > 0.0:
 			velocity.y = JUMP_VELOCITY
 			SfxJump.play()
+			ViewmodelCharacter._set_jump() # viewmodel jump
 	
 	# limit speed
 	#var flat_vel = Vector3(velocity.x, 0, velocity.z)
@@ -671,7 +714,7 @@ func _movement_sliding(delta):
 	
 	if is_sliding:
 		speed = CROUCH_SPEED
-		head_level = HEAD_LEVEL - CROUCH_HEAD_LEVEL_DECREMENT
+		head_level = HEAD_LEVEL - SLIDE_HEAD_LEVEL_DECREMENT
 		
 	if Input.is_action_pressed("move_crouch") and velocity.length() > SLIDE_MIN_SPEED:
 		# push player in the ground
@@ -828,6 +871,9 @@ func _check_grappling(_delta):
 			grapple_stop_timer.connect("timeout", _stop_grappling)
 			
 func _start_grappling(distance):
+	
+	_movement_sliding(0)  # call to end slide
+	
 	grapple_distance = distance
 	grappling_time = GRAPPLE_TIME;
 	started_grappling = true
@@ -872,6 +918,7 @@ func _stop_grappling():
 	is_grappling = false
 	started_grappling = false
 	
+	_movement_sliding(0)  # call to end slide
 	
 	movement = MOVEMENT.NORMAL
 

@@ -10,11 +10,9 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	Steam.run_callbacks()
+	if Server.USE_STEAM:
+		Steam.run_callbacks()
 
 func createSteamServer() -> void:
 	Server.log_console("Creating Steam Server...")
-	
-	Steam.createListenSocketP2P(0, [])
-	#Steam.connectP2P()
-	
+	pass

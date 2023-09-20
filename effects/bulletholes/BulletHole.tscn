@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c1n2ierkt00qy" path="res://assets/decals/bulletholes/bullet_hole_normal.jpg" id="2_6nxgr"]
 
 [node name="BulletHole" type="Decal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0109397, 0)
 layers = 4
 size = Vector3(0.08, 0.08, 0.08)
 texture_albedo = ExtResource("1_p6k47")
