@@ -21,3 +21,7 @@ func _on_server_connect_pressed():
 
 func _on_game_code_text_changed(new_text):
 	Client.game_code = new_text
+
+
+func _on_start_server_pressed():
+	OS.create_instance(["+server", "+low_res"])

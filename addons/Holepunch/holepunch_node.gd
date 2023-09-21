@@ -8,8 +8,8 @@ signal hole_punched(my_port, hosts_port, hosts_address)
 #address and port of the other client have arrived.
 signal session_registered
 
-var server_udp = PacketPeerUDP.new()
-var peer_udp = PacketPeerUDP.new()
+var server_udp := PacketPeerUDP.new()
+var peer_udp := PacketPeerUDP.new()
 
 #Set the rendevouz address to the IP address of your third party server
 @export var rendevouz_address : String = "37.120.169.220" 
@@ -53,29 +53,41 @@ const SERVER_INFO = "peers"
 
 const MAX_PLAYER_COUNT = 2
 
+func _log(text):
+	Client.log_console("> " + str(text))
+	Server.log_console("> " + str(text))
+
 # warning-ignore:unused_argument
 func _process(delta):
+
 	if peer_udp.get_available_packet_count() > 0:
+		print("Available Peer Packets")
 		var array_bytes = peer_udp.get_packet()
-		var packet_string = array_bytes.get_string_from_ascii()
+		var packet_string = array_bytes.get_string_from_utf8()
+		_log("Peer Packet: " + str(packet_string))
 		if not recieved_peer_greet:
 			if packet_string.begins_with(PEER_GREET):
 				var m = packet_string.split(":")
+				Client.log_console("GREET MESSAGE" + str(m))
 				_handle_greet_message(m[1], int(m[2]), int(m[3]))
 
 		if not recieved_peer_confirm:
 			if packet_string.begins_with(PEER_CONFIRM):
 				var m = packet_string.split(":")
+				Client.log_console("CONFORM MESSAGE" + str(m))
 				_handle_confirm_message(m[2], m[1], m[4], m[3])
 
 		elif not recieved_peer_go:
 			if packet_string.begins_with(PEER_GO):
 				var m = packet_string.split(":")
+				Client.log_console("GO MESSAGE" + str(m))
 				_handle_go_message(m[1])
 
 	if server_udp.get_available_packet_count() > 0:
+		print("Available Server Packets")
 		var array_bytes = server_udp.get_packet()
-		var packet_string = array_bytes.get_string_from_ascii()
+		var packet_string = array_bytes.get_string_from_utf8()
+		_log("Server Packet: " + str(packet_string))
 		if packet_string.begins_with(SERVER_OK):
 			var m = packet_string.split(":")
 			own_port = int( m[1] )
@@ -92,12 +104,12 @@ func _process(delta):
 				if packet_string.length() > 2:
 					var m = packet_string.split(":")
 					peer[m[0]] = {"port":m[2], "address":m[1]}
-					Server.log_console(peer)
 					recieved_peer_info = true
 					start_peer_contact()
 
 
 func _handle_greet_message(peer_name, peer_port, my_port):
+	_log("Handle greet message")
 	if own_port != my_port:
 		own_port = my_port
 		peer_udp.close()
@@ -106,6 +118,7 @@ func _handle_greet_message(peer_name, peer_port, my_port):
 
 
 func _handle_confirm_message(peer_name, peer_port, my_port, is_host):
+	_log("Handle confirm message")
 	if peer[peer_name].port != peer_port:
 		peer[peer_name].port = peer_port
 
@@ -119,6 +132,7 @@ func _handle_confirm_message(peer_name, peer_port, my_port, is_host):
 
 
 func _handle_go_message(peer_name):
+	_log("Handle go message")
 	recieved_peer_go = true
 	emit_signal("hole_punched", int(own_port), int(host_port), host_address)
 	peer_udp.close()
@@ -127,22 +141,26 @@ func _handle_go_message(peer_name):
 
 
 func _cascade_peer(add, peer_port):
+	_log("Cascade peer")
 	for i in range(peer_port - port_cascade_range, peer_port + port_cascade_range):
 		peer_udp.set_dest_address(add, i)
 		var buffer = PackedByteArray()
 		buffer.append_array(("greet:"+client_name+":"+str(own_port)+":"+str(i)).to_utf8_buffer())
 		peer_udp.put_packet(buffer)
 		ports_tried += 1
-		print("Tried address: " + str(add) + ":" + str(i))
+		#print("Tried address: " + str(add) + ":" + str(i))
 
 
 func _ping_peer():
-	print("pinging peer...")
+	#_log("Ping peer")
+	
 	if not recieved_peer_confirm and greets_sent < response_window:
 		for p in peer.keys():
-			peer_udp.set_dest_address(peer[p].address, int(peer[p].port))
+			peer_udp.set_dest_address(str(peer[p].address), int(peer[p].port))
+			_log(str(peer[p].address) + ":" + str(peer[p].port))
 			var buffer = PackedByteArray()
 			buffer.append_array(("greet:"+client_name+":"+str(own_port)+":"+peer[p].port).to_utf8_buffer())
+			_log(str("greet:"+client_name+":"+str(own_port)+":"+peer[p].port))
 			peer_udp.put_packet(buffer)
 			greets_sent+=1
 			if greets_sent == response_window:
@@ -159,6 +177,7 @@ func _ping_peer():
 			peer_udp.set_dest_address(peer[p].address, int(peer[p].port))
 			var buffer = PackedByteArray()
 			buffer.append_array(("confirm:"+str(own_port)+":"+client_name+":"+str(is_host)+":"+peer[p].port).to_utf8())
+			_log(str("confirm:"+str(own_port)+":"+client_name+":"+str(is_host)+":"+peer[p].port))
 			peer_udp.put_packet(buffer)
 
 	if  recieved_peer_confirm:
@@ -166,6 +185,7 @@ func _ping_peer():
 			peer_udp.set_dest_address(peer[p].address, int(peer[p].port))
 			var buffer = PackedByteArray()
 			buffer.append_array(("go:"+client_name).to_utf8_buffer())
+			_log(str("go:"+client_name))
 			peer_udp.put_packet(buffer)
 		gos_sent += 1
 
@@ -176,18 +196,24 @@ func _ping_peer():
 
 
 func start_peer_contact():	
-	server_udp.put_packet("goodbye".to_utf8_buffer())
+	_log("Start peer contact")
+	if is_host:
+		server_udp.put_packet("connecting to clients...".to_utf8_buffer())
+	else:
+		server_udp.put_packet("connecting to server...".to_utf8_buffer())
 	server_udp.close()
 	if peer_udp.is_bound():
 		peer_udp.close()
+	_log(own_port)
 	var err = peer_udp.bind(own_port, "*")
 	if err != OK:
-		print("Error listening on port: " + str(own_port) +" Error: " + str(err))
+		_log("Error listening on port: " + str(own_port) +" Error: " + str(err))
 	p_timer.start()
 
 
 #this function can be called to the server if you want to end the holepunch before the server closes the session
 func finalize_peers(id):
+	_log("finalize peers")
 	var buffer = PackedByteArray()
 	buffer.append_array((EXCHANGE_PEERS+str(id)).to_utf8_buffer())
 	server_udp.set_dest_address(rendevouz_address, rendevouz_port)
@@ -196,6 +222,7 @@ func finalize_peers(id):
 
 # remove a client from the server
 func checkout():
+	_log("checkout")
 	var buffer = PackedByteArray()
 	buffer.append_array((CHECKOUT_CLIENT+client_name).to_utf8_buffer())
 	server_udp.set_dest_address(rendevouz_address, rendevouz_port)
@@ -204,6 +231,7 @@ func checkout():
 
 #Call this function when you want to start the holepunch process
 func start_traversal(id, is_player_host, player_name):
+	_log("start traversal")
 	if server_udp.is_bound():
 		server_udp.close()
 
@@ -237,6 +265,7 @@ func start_traversal(id, is_player_host, player_name):
 
 #Register a client with the server
 func _send_client_to_server():
+	_log("send client to server")
 	await get_tree().create_timer(2.0).timeout
 	var buffer = PackedByteArray()
 	buffer.append_array((REGISTER_CLIENT+client_name+":"+session_id).to_utf8_buffer())

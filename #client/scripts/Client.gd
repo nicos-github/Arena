@@ -13,7 +13,7 @@ func _ready():
 	
 	for arg in OS.get_cmdline_args():
 		if arg == "+low_res":
-			DisplayServer.window_set_size(Vector2(1200, 450))
+			DisplayServer.window_set_size(Vector2(1200, 800))
 		if arg == "+client":
 			get_tree().change_scene_to_file(client_scn)
 
@@ -52,6 +52,7 @@ func initialize() -> void:
 		hole_puncher.start_traversal(game_code, is_host, player_id)
 		# Yield an array of [own_port, host_port, host_ip]
 		var result = await hole_puncher.hole_punched
+		#var result = hole_puncher.hole_punched
 		
 		log_console("Holepunch result " + str(result))
 		
@@ -62,11 +63,15 @@ func initialize() -> void:
 
 		var peer = ENetMultiplayerPeer.new()
 		var err = peer.create_client(host_ip, host_port, 0, 0, own_port)
-		get_tree().set_network_peer(peer)
-		
+		#var err = peer.create_client("localhost", 12356)
+		multiplayer.multiplayer_peer = peer
 		log_console("Game found and connected with status code " + str(err))
-
+		#get_tree().set_network_peer(peer)
+		multiplayer.peer_connected.connect(client_connected)
 	
+func client_connected(data):
+	log_console("CONNECTION ESTABLISHED!!!")
+	log_console(data)
 
 func connect_to_server() -> void:
 	log_console("Attempting connection to server...")

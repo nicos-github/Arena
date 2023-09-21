@@ -63,6 +63,7 @@ func _start_server():
 		hole_puncher.start_traversal(game_code, is_host, player_id)
 		# Yield an array of [own_port, host_port, host_ip]
 		var result = await hole_puncher.hole_punched
+		#var result = hole_puncher.hole_punched
 		
 		log_console("Holepunch result " + str(result))
 		
@@ -70,17 +71,21 @@ func _start_server():
 
 		var peer = ENetMultiplayerPeer.new()
 		var err = peer.create_server(my_port, 1)
-		get_tree().set_network_peer(peer)
-		
+		#var err = peer.create_server(12356)
+		multiplayer.multiplayer_peer = peer
+		#get_tree().set_network_peer(peer)
 		log_console("Game found and connected with status code " + str(err))
-	
+		multiplayer.peer_connected.connect(client_connected)
 	
 	is_server = true
 	emit_signal("startServer")
 	log_console("Server started!!")
 	
 	
-
+func client_connected(data):
+	print("CONNECTION?!?!??!")
+	log_console("CLIENT FINALLY AFTER 23478234 HOURS AND 3459873405 ATTEMPTS JOINED THE SERVER!!!!!")
+	log_console(data)
 	
 func _stop_server():
 	

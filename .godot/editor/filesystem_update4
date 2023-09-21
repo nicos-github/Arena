@@ -1,4 +1,3 @@
-res://default_bus_layout.tres
 res://#client/menus/cl_main_menu.tscn
 res://assets/prototype/mat_floor.tres
 res://actors/weapons/SMG/SMGResource.tres
@@ -13,11 +12,4 @@ res://maps/the_world.tscn
 res://actors/character/Character.tscn
 res://actors/character/viewmodel/ViewmodelCamera.tscn
 res://effects/bulletholes/BulletHole.tscn
-res://actors/character/viewmodel/Viewmodel.gd
-res://actors/character/Character.gd
-res://#server/scripts/Server.gd
-res://#server/scripts/SteamServer.gd
-res://addons/Holepunch/holepunch.gd
 res://addons/Holepunch/holepunch_node.gd
-res://#client/scripts/Client.gd
-res://#client/menus/cl_main_menu.gd

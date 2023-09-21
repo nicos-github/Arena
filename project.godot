@@ -43,7 +43,7 @@ project/assembly_name="Arena"
 
 movie_writer/movie_file="D:/GitHub/Arena/movies/movie.avi"
 movie_writer/disable_vsync=true
-run/main_run_args="+server"
+run/main_run_args="+client +low_res"
 naming/scene_name_casing=1
 export/vsync/vsync_mode=1
 
