@@ -347,8 +347,21 @@ func _physics_process(delta):
 			thirdperson = true
 			ViewmodelViewport.visible = false
 			ViewmodelCharacter._init_third_person()
-			
 	
+	# Networking
+	_process_networking(delta)
+
+var start_time = Time.get_ticks_msec()
+var tick = 0
+func _process_networking(delta):
+	if !Client.is_online:
+		return
+	
+	# Send position to server each tick ( client and server run @ 60 ticks )
+	var package := Packet.new()
+	package.type = Packet.TYPE.CLIENT_POSITION
+	package.data = [self.global_position, Camera.global_rotation]
+	Server.send_reliable(package)
 
 func _handle_viewmodel(delta):
 	ViewmodelCharacter.target_model_rotation = Head.rotation.y
@@ -364,7 +377,6 @@ func _handle_viewmodel(delta):
 	var vel = velocity / SPRINT_SPEED
 	var viewmdl_vel_forward = -vel.dot(Head.global_transform.basis.z)
 	var viewmdl_vel_right = vel.dot(Head.global_transform.basis.x)
-	print(Vector2(viewmdl_vel_right, viewmdl_vel_forward))
 	ViewmodelCharacter._set_velocity(Vector2(viewmdl_vel_right, viewmdl_vel_forward))
 	
 	# HeadBob

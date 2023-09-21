@@ -1,6 +1,8 @@
+Camera3D
+Node3D
+Marker3D
 Button
 LineEdit
-Marker3D
 SkeletonIK3D
 HSeparator
 TextEdit
@@ -14,7 +16,6 @@ AudioStreamPlayer3D
 Decal
 GPUParticlesCollisionBox3D
 GPUParticles3D
-Node3D
 Node
 AnimationTree
 AnimationPlayer

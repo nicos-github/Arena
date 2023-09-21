@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 WindowManager="*res://scripts/WindowManager.gd"
 Server="*res://#server/scripts/Server.gd"
 Client="*res://#client/scripts/Client.gd"
+Network="*res://#shared/Network.gd"
 
 [debug]
 
@@ -43,7 +44,7 @@ project/assembly_name="Arena"
 
 movie_writer/movie_file="D:/GitHub/Arena/movies/movie.avi"
 movie_writer/disable_vsync=true
-run/main_run_args="+client +low_res"
+run/main_run_args="+server +low_res"
 naming/scene_name_casing=1
 export/vsync/vsync_mode=1
 
@@ -156,7 +157,6 @@ action_toggle_thirdperson={
 
 [physics]
 
-common/physics_ticks_per_second=120
 common/max_physics_steps_per_frame=16
 
 [rendering]

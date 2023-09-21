@@ -67,5 +67,14 @@ theme_override_constants/separation = 64
 [node name="Console" parent="MarginContainer/VBoxContainer" instance=ExtResource("2_hhbtn")]
 layout_mode = 2
 
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 64
+
+[node name="StartGame" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Start Game"
+
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ServerStartButton" to="." method="_on_server_start_button_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ClientStartButton" to="." method="_on_client_start_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/StartGame" to="." method="_on_start_game_pressed"]

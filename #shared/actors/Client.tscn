@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dswjfocq8l52x"]
+
+[ext_resource type="Script" path="res://#shared/actors/act_Client.gd" id="1_cpvk5"]
+[ext_resource type="PackedScene" uid="uid://dohpk3jdxbjdh" path="res://assets/character/character.glb" id="1_gt3vh"]
+
+[node name="Client" type="Node3D"]
+script = ExtResource("1_cpvk5")
+
+[node name="character" parent="." instance=ExtResource("1_gt3vh")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
